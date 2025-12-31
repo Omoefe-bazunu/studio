@@ -51,9 +51,9 @@ export default function Hero() {
             size="lg"
             variant="ghost"
             asChild
-            className="text-white hover:bg-white/5 px-8 h-14 rounded-full"
+            className="text-white bg-white/5 px-8 h-14 rounded-full"
           >
-            <Link href="/blog">View Our Work</Link>
+            <Link href="/blog">Our Blog</Link>
           </Button>
         </div>
       </div>

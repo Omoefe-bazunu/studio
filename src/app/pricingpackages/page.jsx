@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Plus, Edit2, Trash2, Check } from "lucide-react";
+import {
+  X,
+  Plus,
+  Edit2,
+  Trash2,
+  Check,
+  Loader2,
+  Maximize2,
+} from "lucide-react";
+import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
   getDocs,
@@ -9,119 +18,15 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase/firebase";
+import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-const initialPlans = [
-  {
-    name: "STARTER WEBSITE",
-    price: "₦150,000",
-    color: "from-purple-600 to-pink-600",
-    perfectFor: [
-      "Small businesses",
-      "Personal brands",
-      "Freelancers",
-      "Portfolio showcase",
-    ],
-    features: [
-      "Up to 5 pages",
-      "Responsive design",
-      "Contact form",
-      "Basic SEO",
-      "Social media integration",
-      "30-day support",
-    ],
-    renewals: [
-      "Domain renewal: ₦15,000/year",
-      "Hosting: ₦25,000/year",
-      "SSL Certificate: Included",
-    ],
-  },
-  {
-    name: "COMPANY WEBSITE",
-    price: "₦350,000",
-    color: "from-blue-600 to-cyan-600",
-    perfectFor: [
-      "Growing businesses",
-      "Corporate entities",
-      "Service providers",
-      "Professional firms",
-    ],
-    features: [
-      "Up to 15 pages",
-      "Advanced responsive design",
-      "CMS integration",
-      "Advanced SEO",
-      "Blog functionality",
-      "Contact forms & chat",
-      "90-day support",
-      "Google Analytics",
-    ],
-    renewals: [
-      "Domain renewal: ₦15,000/year",
-      "Hosting: ₦45,000/year",
-      "SSL Certificate: Included",
-      "Maintenance: ₦30,000/year",
-    ],
-  },
-  {
-    name: "ECOMMERCE WEBSITE",
-    price: "₦650,000",
-    color: "from-green-600 to-emerald-600",
-    perfectFor: [
-      "Online retailers",
-      "Product sellers",
-      "Digital marketplace",
-      "Fashion & lifestyle brands",
-    ],
-    features: [
-      "Unlimited products",
-      "Shopping cart & checkout",
-      "Payment gateway integration",
-      "Inventory management",
-      "Order tracking",
-      "Customer accounts",
-      "Advanced SEO",
-      "Mobile app ready",
-      "6-month support",
-    ],
-    renewals: [
-      "Domain renewal: ₦15,000/year",
-      "Hosting: ₦80,000/year",
-      "SSL Certificate: Included",
-      "Maintenance: ₦60,000/year",
-      "Payment gateway fees: 1.5%",
-    ],
-  },
-  {
-    name: "CUSTOM",
-    price: "Custom Quote",
-    color: "from-orange-600 to-red-600",
-    perfectFor: [
-      "Large corporations",
-      "Complex projects",
-      "Multi-platform solutions",
-      "Custom functionality needs",
-    ],
-    features: [
-      "Unlimited pages",
-      "Custom design & development",
-      "API integrations",
-      "Advanced security",
-      "Scalable architecture",
-      "Multi-language support",
-      "Dedicated account manager",
-      "1-year premium support",
-      "Training included",
-    ],
-    renewals: [
-      "Custom maintenance plan",
-      "Dedicated support package",
-      "Priority updates",
-      "Flexible hosting solutions",
-    ],
-  },
-];
+const ADMIN_EMAIL = "raniem57@gmail.com";
 
 export default function PricingPage() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -132,14 +37,15 @@ export default function PricingPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // 1. Admin Auth Check
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      const admin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-      setIsAdmin(!!admin);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAdmin(user?.email === ADMIN_EMAIL);
     });
     return () => unsubscribe();
   }, []);
 
+  // 2. Load Plans
   useEffect(() => {
     loadPlans();
   }, []);
@@ -148,29 +54,17 @@ export default function PricingPage() {
     try {
       setLoading(true);
       const snapshot = await getDocs(collection(db, "pricingPlans"));
-
-      if (snapshot.empty) {
-        await addInitialPlans();
-        setPlans(initialPlans.map((p, i) => ({ id: `plan-${i}`, ...p })));
-      } else {
-        setPlans(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
-      }
+      const plansList = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setPlans(plansList);
     } catch (err) {
-      console.error(err);
-      setPlans(initialPlans.map((p, i) => ({ id: `plan-${i}`, ...p })));
+      console.error("Error loading plans:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const addInitialPlans = async () => {
-    for (const plan of initialPlans) {
-      await addDoc(collection(db, "pricingPlans"), plan);
-    }
-  };
-
   const handleWhatsApp = (plan) => {
-    const message = `Hi! I'm interested in the *${plan.name}* package (${plan.price}).\n\nI'd like to know more about getting started.`;
+    const message = `Hi! I'm interested in the *${plan.name}* package (${plan.price}).`;
     window.open(
       `https://wa.me/2349043970401?text=${encodeURIComponent(message)}`,
       "_blank"
@@ -179,10 +73,11 @@ export default function PricingPage() {
 
   const savePlan = async (planData) => {
     try {
+      const data = { ...planData, updatedAt: serverTimestamp() };
       if (editingPlan?.id) {
-        await updateDoc(doc(db, "pricingPlans", editingPlan.id), planData);
+        await updateDoc(doc(db, "pricingPlans", editingPlan.id), data);
       } else {
-        await addDoc(collection(db, "pricingPlans"), planData);
+        await addDoc(collection(db, "pricingPlans"), data);
       }
       await loadPlans();
       setEditingPlan(null);
@@ -193,7 +88,8 @@ export default function PricingPage() {
   };
 
   const deletePlan = async (planId) => {
-    if (!confirm("Delete this plan?")) return;
+    if (!window.confirm("Are you sure you want to delete this pricing plan?"))
+      return;
     try {
       await deleteDoc(doc(db, "pricingPlans", planId));
       await loadPlans();
@@ -204,409 +100,320 @@ export default function PricingPage() {
 
   if (showWelcome) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-300 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12 text-white">
-          <div className="mb-8 animate-fade-in">
-            <h1 className="text-5xl md:text-6xl font-bold text-center mb-2 tracking-tight">
-              WEBSITE PRICING PACKAGE
+      <>
+        <Header />
+        <div className="min-h-screen py-16 bg-[#0F0A1F] relative overflow-hidden flex flex-col items-center justify-center text-white px-6">
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              background: `radial-gradient(circle at 50% 50%, #6B46C1 0%, transparent 75%)`,
+            }}
+          />
+          <div className="relative z-10 text-center space-y-8 max-w-4xl">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter">
+              WEBSITE <span className="text-[#FF8C38]">PRICING.</span>
             </h1>
-            <div className="w-32 h-1 bg-yellow-400 mx-auto rounded-full"></div>
-          </div>
-
-          <div className="mb-12 relative group">
-            <div className="absolute -inset-4 bg-white opacity-20 rounded-3xl blur-xl group-hover:opacity-30 transition-opacity"></div>
-            <div className="relative bg-white/10 backdrop-blur-sm p-2 rounded-3xl border-4 border-white/30 shadow-2xl">
+            <div className="relative inline-block">
               <img
                 src="https://firebasestorage.googleapis.com/v0/b/high-481fd.firebasestorage.app/o/pricing.jpeg?alt=media&token=115c924d-7688-4f3c-9978-b77572b17ae3"
-                alt="Professional"
-                className="w-80 h-80 object-cover rounded-2xl"
+                alt="Pricing"
+                className="relative rounded-lg w-72 h-72 object-cover border border-white/10"
               />
             </div>
+            <div className="space-y-4">
+              <h2 className="text-4xl md:text-6xl font-black text-[#FF8C38]">
+                HIGH-ER ENTERPRISES
+              </h2>
+              <p className="text-xl text-slate-400">
+                Tailored engineering packages for your business goals.
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowWelcome(false)}
+              className="bg-[#6B46C1] hover:bg-[#5a3aaa] rounded-full px-12 h-16 text-lg font-bold transition-transform hover:scale-105"
+            >
+              View Packages
+            </Button>
           </div>
-
-          <div className="text-center mb-12 max-w-2xl">
-            <p className="text-2xl font-light mb-3">Welcome To</p>
-            <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
-              HIGH-ER ENTREPRISES
-            </h2>
-            <p className="text-xl md:text-2xl font-light leading-relaxed">
-              Wea are Pleased to help you
-              <br />
-              get the best WEBSITE for
-              <br />
-              your goals.
-            </p>
-          </div>
-
-          <button
-            onClick={() => setShowWelcome(false)}
-            className="group relative px-12 py-5 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full text-black font-bold text-lg shadow-2xl hover:shadow-yellow-500/50 transition-all hover:scale-105 active:scale-95"
-          >
-            <span className="flex items-center gap-3">
-              View Pricing Packages
-              <svg
-                className="w-6 h-6 group-hover:translate-x-2 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </span>
-          </button>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
-  if (loading) {
+  if (loading)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center text-white text-xl">
-        Loading plans...
+      <div className="h-screen flex items-center justify-center bg-[#0F0A1F]">
+        <Loader2 className="animate-spin text-white w-12 h-12" />
       </div>
     );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
-            Choose Your Perfect Plan
-          </h1>
-          <p className="text-xl text-gray-300">
-            Tailored solutions for every business need
-          </p>
-          {isAdmin && (
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 mx-auto"
-            >
-              <Plus size={20} /> Add New Plan
-            </button>
-          )}
-        </div>
+    <>
+      <Header />
+      <div className="min-h-screen bg-slate-50 py-24">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
+                Pricing Plans
+              </h1>
+              <p className="text-slate-500">
+                Scalable website solutions for every stage of growth.
+              </p>
+            </div>
+            {isAdmin && (
+              <Button
+                onClick={() => setShowAddModal(true)}
+                className="bg-[#FF8C38] hover:bg-[#e67e32] rounded-full px-8 h-12"
+              >
+                <Plus className="mr-2 w-5 h-5" /> Add Package
+              </Button>
+            )}
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {plans.map((plan, index) => (
-            <div
-              key={plan.id}
-              className="group relative"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {plans.map((plan) => (
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${plan.color} rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity`}
-              ></div>
-
-              <div className="relative bg-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 hover:border-gray-500 transition-all hover:transform hover:scale-105 cursor-pointer h-full flex flex-col">
-                <div onClick={() => setSelectedPlan(plan)} className="flex-1">
-                  <h3 className="text-2xl font-bold text-white mb-2 text-wrap ">
+                key={plan.id}
+                className="bg-white border-none shadow-xl flex flex-col rounded-lg overflow-hidden transition-all hover:translate-y-[-5px]"
+              >
+                <div
+                  className={`h-2 bg-gradient-to-r ${
+                    plan.color || "from-purple-600 to-blue-600"
+                  }`}
+                />
+                <div className="p-8 flex-grow">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">
                     {plan.name}
                   </h3>
-                  <div
-                    className={`text-3xl font-black bg-gradient-to-r ${plan.color} bg-clip-text text-transparent mb-6`}
-                  >
+                  <div className="text-3xl font-black text-[#6B46C1] mb-6">
                     {plan.price}
                   </div>
-                  <div className="space-y-3">
-                    {plan.features.slice(0, 4).map((feature, i) => (
-                      <div
+                  <ul className="space-y-4">
+                    {plan.features?.slice(0, 5).map((f, i) => (
+                      <li
                         key={i}
-                        className="flex items-start gap-2 text-gray-300"
+                        className="flex items-start gap-3 text-slate-600 text-sm"
                       >
                         <Check
-                          size={20}
-                          className="text-green-400 flex-shrink-0 mt-0.5"
-                        />
-                        <span className="text-sm">{feature}</span>
-                      </div>
+                          size={18}
+                          className="text-green-500 flex-shrink-0"
+                        />{" "}
+                        {f}
+                      </li>
                     ))}
-                    {plan.features.length > 4 && (
-                      <p className="text-purple-400 text-sm font-semibold">
-                        +{plan.features.length - 4} more features
-                      </p>
-                    )}
-                  </div>
+                  </ul>
                 </div>
-
-                {isAdmin && (
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-gray-700">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingPlan(plan);
-                      }}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center gap-1"
-                    >
-                      <Edit2 size={16} /> Edit
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deletePlan(plan.id);
-                      }}
-                      className="flex-1 px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center gap-1"
-                    >
-                      <Trash2 size={16} /> Delete
-                    </button>
-                  </div>
-                )}
-
-                <button
-                  onClick={() => setSelectedPlan(plan)}
-                  className={`mt-4 w-full py-3 bg-gradient-to-r ${plan.color} text-white rounded-lg font-bold hover:shadow-lg transition-all`}
-                >
-                  View Details
-                </button>
+                <div className="p-8 pt-0 flex flex-col gap-4">
+                  <Button
+                    onClick={() => setSelectedPlan(plan)}
+                    className={`w-full bg-gradient-to-r ${plan.color} rounded-full font-bold`}
+                  >
+                    View Details
+                  </Button>
+                  {isAdmin && (
+                    <div className="flex gap-2 pt-4 border-t border-slate-100">
+                      <Button
+                        variant="outline"
+                        className="flex-1 rounded-full"
+                        onClick={() => setEditingPlan(plan)}
+                      >
+                        <Edit2 size={16} />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="flex-1 rounded-full"
+                        onClick={() => deletePlan(plan.id)}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <button
-          onClick={() => setShowWelcome(true)}
-          className="mt-12 mx-auto block px-8 py-3 bg-white/10 backdrop-blur-sm text-white rounded-full hover:bg-white/20 transition-all"
-        >
-          ← Back to Welcome
-        </button>
+        {/* --- MODALS --- */}
+        {selectedPlan && !editingPlan && (
+          <PlanModal
+            plan={selectedPlan}
+            onClose={() => setSelectedPlan(null)}
+            onWhatsApp={handleWhatsApp}
+          />
+        )}
+
+        {(editingPlan || showAddModal) && (
+          <EditPlanModal
+            plan={editingPlan}
+            onClose={() => {
+              setEditingPlan(null);
+              setShowAddModal(false);
+            }}
+            onSave={savePlan}
+          />
+        )}
       </div>
-
-      {selectedPlan && !editingPlan && (
-        <PlanModal
-          plan={selectedPlan}
-          onClose={() => setSelectedPlan(null)}
-          onWhatsApp={handleWhatsApp}
-        />
-      )}
-
-      {(editingPlan || showAddModal) && (
-        <EditPlanModal
-          plan={editingPlan}
-          onClose={() => {
-            setEditingPlan(null);
-            setShowAddModal(false);
-          }}
-          onSave={savePlan}
-        />
-      )}
-    </div>
+      <Footer />
+    </>
   );
 }
 
+/**
+ * Component: Plan Details Modal
+ */
 function PlanModal({ plan, onClose, onWhatsApp }) {
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-700 shadow-2xl">
-        <div className={`bg-gradient-to-r ${plan.color} p-6 relative`}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-2xl rounded-none shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div
+          className={`p-8 bg-gradient-to-r ${plan.color} text-white flex justify-between items-center`}
+        >
+          <div>
+            <h2 className="text-3xl font-bold">{plan.name}</h2>
+            <p className="text-xl opacity-90">{plan.price}</p>
+          </div>
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full p-2 transition-all"
+            className="p-2 hover:bg-white/20 rounded-full transition-colors"
           >
-            <X size={24} />
+            <X size={28} />
           </button>
-          <h2 className="text-2xl font-bold text-white">{plan.name}</h2>
-          <p className="text-3xl font-black text-white mt-2">{plan.price}</p>
         </div>
-
-        <div className="p-6 space-y-6">
+        <div className="p-8 space-y-8">
           <div>
-            <h3 className="text-xl font-bold text-purple-400 mb-3">
-              Perfect For
+            <h3 className="font-bold text-[#6B46C1] uppercase tracking-widest text-sm mb-4">
+              Core Features
             </h3>
-            <ul className="space-y-2">
-              {plan.perfectFor.map((item, i) => (
-                <li key={i} className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  {item}
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {plan.features?.map((f, i) => (
+                <li key={i} className="flex items-center gap-2 text-slate-600">
+                  <Check size={18} className="text-green-500" /> {f}
                 </li>
               ))}
             </ul>
           </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-blue-400 mb-3">Features</h3>
-            <ul className="space-y-2">
-              {plan.features.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-gray-300">
-                  <Check
-                    size={20}
-                    className="text-green-400 flex-shrink-0 mt-0.5"
-                  />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-green-400 mb-3">
-              Annual Renewals
-            </h3>
-            <ul className="space-y-2">
-              {plan.renewals.map((renewal, i) => (
-                <li key={i} className="flex items-center gap-2 text-gray-300">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  {renewal}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <button
+          <Button
             onClick={() => onWhatsApp(plan)}
-            className={`w-full py-4 bg-gradient-to-r ${plan.color} text-white rounded-lg font-bold text-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95`}
+            className={`w-full h-14 text-lg font-bold rounded-full bg-gradient-to-r ${plan.color}`}
           >
-            GET THIS PACKAGE
-          </button>
+            ORDER THIS PACKAGE
+          </Button>
         </div>
       </div>
     </div>
   );
 }
 
+/**
+ * Component: Edit/Add Plan Modal
+ */
 function EditPlanModal({ plan, onClose, onSave }) {
   const [formData, setFormData] = useState(
     plan || {
       name: "",
       price: "",
       color: "from-purple-600 to-pink-600",
-      perfectFor: [""],
       features: [""],
+      perfectFor: [""],
       renewals: [""],
     }
   );
 
-  const handleArrayChange = (field, index, value) => {
-    const newArray = [...formData[field]];
-    newArray[index] = value;
-    setFormData({ ...formData, [field]: newArray });
-  };
-
-  const addArrayItem = (field) => {
-    setFormData({ ...formData, [field]: [...formData[field], ""] });
-  };
-
-  const removeArrayItem = (field, index) => {
-    const newArray = formData[field].filter((_, i) => i !== index);
-    setFormData({ ...formData, [field]: newArray });
+  const handleArrayChange = (field, index, val) => {
+    const arr = [...formData[field]];
+    arr[index] = val;
+    setFormData({ ...formData, [field]: arr });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-700">
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 relative">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full p-2"
-          >
-            <X size={24} />
-          </button>
-          <h2 className="text-3xl font-bold text-white">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-2xl rounded-none shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b flex justify-between items-center">
+          <h2 className="text-2xl font-bold">
             {plan ? "Edit Plan" : "Add New Plan"}
           </h2>
+          <button onClick={onClose}>
+            <X size={24} />
+          </button>
         </div>
-
         <div className="p-6 space-y-6">
-          <div>
-            <label className="block text-white mb-2">Plan Name</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-slate-700 text-white rounded-lg border border-gray-600 focus:border-purple-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-white mb-2">Price</label>
-            <input
-              type="text"
-              value={formData.price}
-              onChange={(e) =>
-                setFormData({ ...formData, price: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-slate-700 text-white rounded-lg border border-gray-600 focus:border-purple-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-white mb-2">Color Gradient</label>
-            <select
-              value={formData.color}
-              onChange={(e) =>
-                setFormData({ ...formData, color: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-slate-700 text-white rounded-lg border border-gray-600 focus:border-purple-500 outline-none"
-            >
-              <option value="from-purple-600 to-pink-600">
-                Purple to Pink
-              </option>
-              <option value="from-blue-600 to-cyan-600">Blue to Cyan</option>
-              <option value="from-green-600 to-emerald-600">
-                Green to Emerald
-              </option>
-              <option value="from-orange-600 to-red-600">Orange to Red</option>
-            </select>
-          </div>
-
-          {["perfectFor", "features", "renewals"].map((field) => (
-            <div key={field}>
-              <label className="block text-white mb-2 capitalize">
-                {field.replace(/([A-Z])/g, " $1")}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">
+                Plan Name
               </label>
-              {formData[field].map((item, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={item}
-                    onChange={(e) =>
-                      handleArrayChange(field, index, e.target.value)
-                    }
-                    className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg border border-gray-600 focus:border-purple-500 outline-none"
-                  />
-                  <button
-                    onClick={() => removeArrayItem(field, index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => addArrayItem(field)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-              >
-                <Plus size={18} /> Add Item
-              </button>
+              <input
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                className="w-full p-3 border rounded-none"
+              />
             </div>
-          ))}
-
-          <div className="flex gap-4">
-            <button
-              onClick={() => onSave(formData)}
-              className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold hover:shadow-xl transition-all"
-            >
-              Save Plan
-            </button>
-            <button
-              onClick={onClose}
-              className="px-6 py-3 bg-gray-600 text-white rounded-lg font-bold hover:bg-gray-700 transition-all"
-            >
-              Cancel
-            </button>
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">
+                Price (e.g. ₦150k)
+              </label>
+              <input
+                value={formData.price}
+                onChange={(e) =>
+                  setFormData({ ...formData, price: e.target.value })
+                }
+                className="w-full p-3 border rounded-none"
+              />
+            </div>
           </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400">
+              Features (one per line)
+            </label>
+            {formData.features.map((f, i) => (
+              <div key={i} className="flex gap-2 mb-2">
+                <input
+                  value={f}
+                  onChange={(e) =>
+                    handleArrayChange("features", i, e.target.value)
+                  }
+                  className="flex-1 p-2 border rounded-none"
+                />
+                <button
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      features: formData.features.filter((_, idx) => idx !== i),
+                    })
+                  }
+                  className="text-red-500"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  features: [...formData.features, ""],
+                })
+              }
+              className="rounded-full"
+            >
+              Add Feature
+            </Button>
+          </div>
+
+          <Button
+            onClick={() => onSave(formData)}
+            className="w-full bg-[#6B46C1] rounded-full h-12 font-bold"
+          >
+            SAVE PRICING PLAN
+          </Button>
         </div>
       </div>
     </div>

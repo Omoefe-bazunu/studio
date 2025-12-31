@@ -39,7 +39,7 @@ const servicesData = [
     id: "mobile-app-development",
     title: "Mobile App Development",
     imageSrc:
-      "https://firebasestorage.googleapis.com/v0/b/high-481fd.firebasestorage.app/o/smm.jpeg?alt=media&token=5f51d15e-f8c8-49a2-848f-49c49d1f404a",
+      "https://firebasestorage.googleapis.com/v0/b/high-481fd.firebasestorage.app/o/result_0.png?alt=media&token=7a2887be-b90b-4bed-87aa-c3f0556f8fc7",
     features: [
       "iOS & Android Apps",
       "React Native / Flutter",
@@ -52,7 +52,7 @@ const servicesData = [
     id: "saas-development",
     title: "SaaS Development",
     imageSrc:
-      "https://firebasestorage.googleapis.com/v0/b/high-481fd.firebasestorage.app/o/resume%20(2).jpg?alt=media&token=07ed2703-68cb-456a-9b46-9c522298f820",
+      "https://firebasestorage.googleapis.com/v0/b/high-481fd.firebasestorage.app/o/result_0%20(1).png?alt=media&token=2b9dad87-5998-476e-b19a-726c43d13003",
     features: [
       "Scalable Cloud Infrastructure",
       "Multi-tenant Architecture",

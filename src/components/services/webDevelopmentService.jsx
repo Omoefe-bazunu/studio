@@ -323,7 +323,7 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
       <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div className="max-w-2xl text-center md:text-left">
+            <div className="max-w-2xl text-center mx-auto">
               <h2 className="text-4xl font-bold text-slate-900 mb-4">
                 Our Portfolio
               </h2>

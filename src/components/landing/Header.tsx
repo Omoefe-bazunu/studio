@@ -24,6 +24,7 @@ const NAV_LINKS = [
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
   { href: "/blog", label: "Blog" },
+  { href: "/pricingpackages", label: "Pricing" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -111,7 +112,7 @@ export default function Header() {
                   variant="default"
                   size="sm"
                   asChild
-                  className="rounded-full shadow-none bg-slate-900 hover:bg-slate-800"
+                  className="rounded-full shadow-none bg-primary hover:bg-purple-900"
                 >
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>

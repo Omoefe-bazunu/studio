@@ -286,7 +286,7 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
       <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="flex justify-between items-end mb-16">
-            <div>
+            <div className=" w-full text-center mx-auto">
               <h2 className="text-4xl font-bold text-slate-900 mb-2">
                 SaaS Portfolio
               </h2>

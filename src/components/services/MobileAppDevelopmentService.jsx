@@ -270,7 +270,7 @@ export default function MobileAppDevelopmentService({
       <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="flex justify-between items-end mb-16">
-            <div>
+            <div className=" w-full mx-auto text-center">
               <h2 className="text-4xl font-bold text-slate-900 mb-2">
                 App Showcase
               </h2>
