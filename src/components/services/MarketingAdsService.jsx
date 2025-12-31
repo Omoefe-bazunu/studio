@@ -160,7 +160,7 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
       </section>
 
       {/* 2. SLIDING PORTFOLIO SECTION */}
-      <section className="py-24 bg-slate-50 min-h-[800px] flex flex-col justify-center">
+      <section className="py-24 bg-slate-50 min-h-[900px] flex flex-col justify-center">
         <div className="container mx-auto px-6">
           <div className="flex justify-between w-full text-center items-end mb-12">
             <div className=" w-full mx-auto text-center">
@@ -188,7 +188,7 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
               <Loader2 className="animate-spin text-[#6B46C1] h-12 w-12" />
             </div>
           ) : projects.length > 0 ? (
-            <div className="relative max-w-5xl mx-auto h-[600px]">
+            <div className="relative max-w-5xl mx-auto h-[800px] md:h-[600px]">
               <AnimatePresence initial={false} custom={direction}>
                 <motion.div
                   key={currentIndex}
@@ -200,9 +200,9 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                   className="absolute inset-0"
                 >
                   <Card className="h-full w-full flex flex-col md:flex-row border-none shadow-2xl rounded-lg overflow-hidden bg-white">
-                    {/* Image Side */}
+                    {/* Image Side - Increased height on mobile to 60% */}
                     <div
-                      className="relative w-full md:w-3/5 h-64 md:h-full cursor-pointer group"
+                      className="relative w-full md:w-3/5 h-[60%] md:h-full cursor-pointer group"
                       onClick={() =>
                         window.open(projects[currentIndex].imageSrc, "_blank")
                       }
@@ -213,32 +213,30 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                         fill
                         className="object-cover"
                       />
-                      {/* Hint Overlay */}
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <div className="bg-white/90 p-4 rounded-full shadow-xl transform scale-75 group-hover:scale-100 transition-transform">
+                      {/* Permanent Full-screen Hint Overlay */}
+                      <div className="absolute inset-0 bg-black/10 transition-opacity flex items-center justify-center">
+                        <div className="bg-white/90 p-4 rounded-full shadow-xl">
                           <Maximize2 className="w-6 h-6 text-[#6B46C1]" />
                         </div>
-                        <span className="absolute bottom-6 text-white font-bold tracking-widest text-xs uppercase">
-                          Click to view full image
-                        </span>
                       </div>
                     </div>
 
-                    {/* Content Side */}
-                    <div className="w-full md:w-2/5 p-10 flex flex-col justify-center relative">
+                    {/* Content Side - Adjusted for mobile fit */}
+                    <div className="w-full md:w-2/5 p-6 md:p-10 flex flex-col justify-center relative bg-white">
                       {isAdmin && (
-                        <div className="absolute top-6 right-6 flex gap-2">
+                        <div className="absolute top-4 right-4 flex gap-2">
                           <Button
                             variant="outline"
                             size="icon"
                             className="h-8 w-8 rounded-full"
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setModal((p) => ({
                                 ...p,
                                 open: true,
                                 edit: projects[currentIndex],
-                              }))
-                            }
+                              }));
+                            }}
                           >
                             <Edit3 className="w-4 h-4 text-[#6B46C1]" />
                           </Button>
@@ -246,27 +244,28 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                             variant="destructive"
                             size="icon"
                             className="h-8 w-8 rounded-full"
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setModal((p) => ({
                                 ...p,
                                 del: projects[currentIndex].id,
-                              }))
-                            }
+                              }));
+                            }}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       )}
-                      <Badge className="w-fit mb-6 bg-orange-100 text-[#FF8C38] rounded-full border-none px-4 font-bold">
+                      <Badge className="w-fit mb-4 md:mb-6 bg-orange-100 text-[#FF8C38] rounded-full border-none px-4 font-bold">
                         {projects[currentIndex].category}
                       </Badge>
-                      <h3 className="text-3xl font-bold text-slate-900 mb-4">
+                      <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2 md:mb-4">
                         {projects[currentIndex].title}
                       </h3>
-                      <p className="text-slate-500 text-lg leading-relaxed mb-8">
+                      <p className="text-slate-500 text-base md:text-lg leading-relaxed mb-4 md:mb-8 line-clamp-3 md:line-clamp-none">
                         {projects[currentIndex].description}
                       </p>
-                      <div className="mt-auto pt-6 border-t border-slate-100 flex items-center text-slate-400 font-bold text-xs uppercase tracking-tighter">
+                      <div className="mt-auto pt-4 md:pt-6 border-t border-slate-100 flex items-center text-slate-400 font-bold text-[10px] md:text-xs uppercase tracking-tighter">
                         <CalendarDays className="w-4 h-4 mr-2 text-[#6B46C1]" />
                         Campaign Date:{" "}
                         {new Date(
@@ -282,29 +281,29 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
               </AnimatePresence>
 
               {/* Navigation Arrows */}
-              <div className="absolute -left-6 md:-left-16 top-1/2 -translate-y-1/2 z-20">
+              <div className="absolute -left-4 md:-left-16 top-1/2 -translate-y-1/2 z-20">
                 <Button
                   onClick={() => paginate(-1)}
                   size="icon"
                   variant="outline"
-                  className="h-12 w-12 rounded-full shadow-lg bg-white border-slate-100 text-[#6B46C1] hover:bg-[#6B46C1] hover:text-white transition-all"
+                  className="h-10 w-10 md:h-12 md:w-12 rounded-full shadow-lg bg-white border-slate-100 text-[#6B46C1] hover:bg-[#6B46C1] hover:text-white transition-all"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </Button>
               </div>
-              <div className="absolute -right-6 md:-right-16 top-1/2 -translate-y-1/2 z-20">
+              <div className="absolute -right-4 md:-right-16 top-1/2 -translate-y-1/2 z-20">
                 <Button
                   onClick={() => paginate(1)}
                   size="icon"
                   variant="outline"
-                  className="h-12 w-12 rounded-full shadow-lg bg-white border-slate-100 text-[#6B46C1] hover:bg-[#6B46C1] hover:text-white transition-all"
+                  className="h-10 w-10 md:h-12 md:w-12 rounded-full shadow-lg bg-white border-slate-100 text-[#6B46C1] hover:bg-[#6B46C1] hover:text-white transition-all"
                 >
                   <ChevronRight className="w-6 h-6" />
                 </Button>
               </div>
 
               {/* Slider Indicators */}
-              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex gap-2">
+              <div className="absolute -bottom-16 md:-bottom-12 left-1/2 -translate-x-1/2 flex gap-2">
                 {projects.map((_, i) => (
                   <button
                     key={i}
