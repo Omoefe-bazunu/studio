@@ -147,6 +147,10 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-8">
             Designs that <span className="text-[#FF8C38]">Sell.</span>
           </h1>
+          <p className="mt-8 text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Create eye-catchy and scroll-stopping visuals that communicates your
+            message clearly in seconds.
+          </p>
           <Button
             asChild
             size="lg"
