@@ -18,10 +18,12 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { signUpWithEmail } from "@/lib/firebase/auth";
+import { Eye, EyeOff, Loader2, UserCircle } from "lucide-react";
 
 // Validation Schema
 const signUpSchema = z
   .object({
+    name: z.string().min(2, { message: "Please enter your full name." }),
     email: z.string().email({ message: "Enter a valid email address." }),
     password: z
       .string()
@@ -38,16 +40,19 @@ export default function SignUpForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    const { error } = await signUpWithEmail(data.email, data.password);
+    const { error } = await signUpWithEmail(
+      data.email,
+      data.password,
+      data.name
+    );
     setIsLoading(false);
 
     if (error) {
@@ -59,7 +64,7 @@ export default function SignUpForm() {
     } else {
       toast({
         title: "Account Created!",
-        description: "Check your email for a verification link.",
+        description: `Welcome ${data.name}! Please check your email to verify.`,
       });
       router.push("/login");
     }
@@ -68,20 +73,41 @@ export default function SignUpForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        {/* Full Name Field */}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-slate-700 font-bold uppercase text-[10px] tracking-widest">
+                Full Name
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="e.g. Omoefe Bazunu"
+                  className="h-12 rounded-lg border-slate-200 focus:ring-[#6B46C1]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Email Field */}
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-slate-700 font-semibold">
+              <FormLabel className="text-slate-700 font-bold uppercase text-[10px] tracking-widest">
                 Email Address
               </FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   placeholder="name@company.com"
-                  className="h-12 rounded-xl border-slate-200 focus:ring-[#6B46C1]"
+                  className="h-12 rounded-lg border-slate-200 focus:ring-[#6B46C1]"
                   {...field}
                 />
               </FormControl>
@@ -96,22 +122,22 @@ export default function SignUpForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-slate-700 font-semibold">
-                Password
+              <FormLabel className="text-slate-700 font-bold uppercase text-[10px] tracking-widest">
+                Create Password
               </FormLabel>
               <FormControl>
                 <div className="relative">
                   <Input
                     type={showPass ? "text" : "password"}
-                    className="h-12 rounded-xl border-slate-200 pr-16 focus:ring-[#6B46C1]"
+                    className="h-12 rounded-lg border-slate-200 pr-12 focus:ring-[#6B46C1]"
                     {...field}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-[#6B46C1]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#6B46C1]"
                   >
-                    {showPass ? "HIDE" : "SHOW"}
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </FormControl>
@@ -120,48 +146,42 @@ export default function SignUpForm() {
           )}
         />
 
-        {/* Confirm Password Field */}
+        {/* Confirm Password */}
         <FormField
           control={form.control}
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-slate-700 font-semibold">
+              <FormLabel className="text-slate-700 font-bold uppercase text-[10px] tracking-widest">
                 Confirm Password
               </FormLabel>
               <FormControl>
-                <div className="relative">
-                  <Input
-                    type={showConfirm ? "text" : "password"}
-                    className="h-12 rounded-xl border-slate-200 pr-16 focus:ring-[#6B46C1]"
-                    {...field}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-[#6B46C1]"
-                  >
-                    {showConfirm ? "HIDE" : "SHOW"}
-                  </button>
-                </div>
+                <Input
+                  type="password"
+                  className="h-12 rounded-lg border-slate-200 focus:ring-[#6B46C1]"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Action Buttons */}
-        <div className="pt-2 space-y-4">
+        <div className="pt-4">
           <Button
             type="submit"
-            className="w-full h-12 bg-[#6B46C1] hover:bg-[#5a3aaa] text-white rounded-full font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-[1.02]"
+            className="w-full h-14 bg-[#6B46C1] hover:bg-[#5a3aaa] text-white rounded-full font-bold shadow-xl shadow-purple-500/10"
             disabled={isLoading}
           >
-            {isLoading ? "Creating Account..." : "Create Account"}
+            {isLoading ? (
+              <Loader2 className="animate-spin mr-2" />
+            ) : (
+              "Create Account"
+            )}
           </Button>
 
-          <p className="text-sm text-center text-slate-500">
-            Already have an account?{" "}
+          <p className="text-sm text-center text-slate-500 mt-6 font-medium">
+            Member already?{" "}
             <Link
               href="/login"
               className="text-[#6B46C1] font-bold hover:underline"

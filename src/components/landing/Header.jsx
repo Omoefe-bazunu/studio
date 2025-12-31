@@ -52,10 +52,14 @@ export default function Header() {
   const handleSignOut = async () => {
     setOpenSheet(false);
     const { error } = await signOutUser();
+
     if (error) {
+      // Cast 'error' to 'any' or check if it has a message property
+      const errorMessage = error.message || "An unknown error occurred";
+
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } else {

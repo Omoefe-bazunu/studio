@@ -220,6 +220,7 @@ export const getBlogPosts = async (filters = {}) => {
     };
   });
 };
+
 export const addBlogPost = async (postData) => {
   const tempId = `blog_${Date.now()}`;
   let mainImg = postData.imageSrc || "";
@@ -243,6 +244,7 @@ export const addBlogPost = async (postData) => {
     })
   ).id;
 };
+
 export const updateBlogPost = (id, data) =>
   updateDoc(doc(db, "blogPosts", id), {
     ...data,
@@ -261,7 +263,25 @@ export const addCommentToBlogPost = (id, comment) =>
     updatedAt: serverTimestamp(),
   });
 
-// --- TESTIMONIALS (Restored & Verified) ---
+// --- CONTACT MESSAGES (Restored) ---
+
+export const getContactMessages = async () => {
+  const q = query(contactsRef, orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+    createdAt:
+      d.data().createdAt?.toDate().toISOString() || new Date().toISOString(),
+  }));
+};
+
+export const addContactMessage = (data) =>
+  addDoc(contactsRef, { ...data, createdAt: serverTimestamp() });
+
+export const deleteContactMessage = (id) => deleteDoc(doc(db, "contacts", id));
+
+// --- TESTIMONIALS ---
 
 export const getTestimonials = async (filter) => {
   const constraints = [
@@ -279,27 +299,21 @@ export const getTestimonials = async (filter) => {
   }));
 };
 
-export const addTestimonial = async (formData) => {
-  return (
-    await addDoc(testimonialsRef, {
-      ...formData,
-      status: "approved",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    })
-  ).id;
-};
-
-export const updateTestimonial = async (id, data) => {
-  await updateDoc(doc(db, "testimonials", id), {
+export const addTestimonial = (data) =>
+  addDoc(testimonialsRef, {
+    ...data,
+    status: "approved",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+export const updateTestimonial = (id, data) =>
+  updateDoc(doc(db, "testimonials", id), {
     ...data,
     updatedAt: serverTimestamp(),
   });
-};
-
 export const deleteTestimonial = (id) => deleteDoc(doc(db, "testimonials", id));
 
-// --- BANNERS & CONTACT ---
+// --- SITE CONTENT & BANNERS ---
 
 export const getAdsBannerContent = async () => {
   const snap = await getDoc(doc(siteContentRef, "mainBanner"));
@@ -322,6 +336,3 @@ export const setTopHeaderBannerContent = (data) =>
     { ...data, updatedAt: serverTimestamp() },
     { merge: true }
   );
-
-export const addContactMessage = (data) =>
-  addDoc(contactsRef, { ...data, createdAt: serverTimestamp() });
