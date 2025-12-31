@@ -1,0 +1,76 @@
+import type { WebProject } from '@/types';
+
+export const webProjectsData: WebProject[] = [
+  {
+    id: 'proj-wd-1',
+    title: 'Corporate Portfolio Website',
+    description: 'A sleek and modern portfolio website for a B2B company, showcasing their services and case studies. Built with Next.js and Tailwind CSS.',
+    deliveryDate: '2023-10-15',
+    liveUrl: '#', 
+    screenshots: [
+      'https://placehold.co/600x400.png?id=wd1img1',
+      'https://placehold.co/600x400.png?id=wd1img2',
+      'https://placehold.co/600x400.png?id=wd1img3',
+    ],
+    imageHints: ['website homepage', 'services page', 'contact form'],
+    category: 'Web Development',
+  },
+  {
+    id: 'proj-wd-2',
+    title: 'E-commerce Store for Artisanal Goods',
+    description: 'Developed a fully functional e-commerce platform with Shopify integration, payment gateways, and inventory management for a local artisan.',
+    deliveryDate: '2024-01-20',
+    liveUrl: '#',
+    screenshots: [
+      'https://placehold.co/600x400.png?id=wd2img1',
+      'https://placehold.co/600x400.png?id=wd2img2',
+      'https://placehold.co/600x400.png?id=wd2img3',
+      'https://placehold.co/600x400.png?id=wd2img4',
+    ],
+    imageHints: ['product page', 'shopping cart', 'checkout process', 'admin dashboard'],
+    category: 'Web Development',
+  },
+  {
+    id: 'proj-wd-3',
+    title: 'Booking System for a Local Salon',
+    description: 'Created a custom booking and appointment management system with an intuitive user interface for a beauty salon.',
+    deliveryDate: '2023-07-01',
+    liveUrl: '#',
+    screenshots: [
+      'https://placehold.co/600x400.png?id=wd3img1',
+      'https://placehold.co/600x400.png?id=wd3img2',
+    ],
+    imageHints: ['booking calendar', 'service selection'],
+    category: 'Web Development',
+  },
+   {
+    id: 'proj-wd-4',
+    title: 'Landing Page for SaaS Product',
+    description: 'Designed and developed a high-converting landing page for a new software-as-a-service product, optimized for lead generation.',
+    deliveryDate: '2024-03-10',
+    liveUrl: '#',
+    screenshots: [
+      'https://placehold.co/600x400.png?id=wd4img1',
+      'https://placehold.co/600x400.png?id=wd4img2',
+      'https://placehold.co/600x400.png?id=wd4img3',
+    ],
+    imageHints: ['hero section features', 'pricing table', 'signup form'],
+    category: 'Web Development',
+  },
+  {
+    id: 'proj-wd-5',
+    title: 'Non-Profit Organization Website Redesign',
+    description: 'Redesigned an existing website for a non-profit to improve user engagement, donation flow, and information accessibility.',
+    deliveryDate: '2023-12-05',
+    liveUrl: '#',
+    screenshots: [
+      'https://placehold.co/600x400.png?id=wd5img1',
+      'https://placehold.co/600x400.png?id=wd5img2',
+      'https://placehold.co/600x400.png?id=wd5img3',
+      'https://placehold.co/600x400.png?id=wd5img4',
+      'https://placehold.co/600x400.png?id=wd5img5',
+    ],
+    imageHints: ['homepage redesign', 'donation page', 'events calendar', 'volunteer signup', 'impact stories'],
+    category: 'Web Development',
+  },
+];
