@@ -251,8 +251,7 @@ export default function MobileAppDevelopmentService({
           </h1>
           <p className="mt-8 text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
             From intuitive UI/UX design to robust backend integration, we build
-            mobile experiences that users love and businesses thrive on. [cite:
-            113]
+            mobile experiences that users love and businesses thrive on.
           </p>
           <Button
             asChild
