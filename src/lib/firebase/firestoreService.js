@@ -18,7 +18,6 @@ import {
 } from "firebase/firestore";
 import {
   uploadProjectScreenshot,
-  deleteFileFromStorage,
   uploadMarketingAdImage,
   uploadBlogImage,
   uploadAdsBannerImage,
@@ -63,26 +62,26 @@ const saveProjectScreenshots = async (projectData, pathPrefix) => {
     if (ss.file) {
       const url = await uploadProjectScreenshot(ss.file, pathPrefix);
       urls.push(url);
-      hints.push(ss.hint);
+      hints.push(ss.hint || "");
     } else if (ss.url) {
       urls.push(ss.url);
-      hints.push(ss.hint);
+      hints.push(ss.hint || "");
     }
   }
   return { urls, hints };
 };
 
-// --- CORE SERVICES (WEB, MOBILE, SAAS, DESIGN) ---
-
+// --- WEB PROJECTS ---
 export const getWebProjects = () => fetchProjects(webProjectsRef);
 export const addWebProject = async (data) => {
   const { urls, hints } = await saveProjectScreenshots(
     data,
     `web_${Date.now()}`
   );
+  const { screenshots, ...cleanData } = data;
   return (
     await addDoc(webProjectsRef, {
-      ...data,
+      ...cleanData,
       screenshots: urls,
       imageHints: hints,
       category: "Web Development",
@@ -94,8 +93,9 @@ export const addWebProject = async (data) => {
 };
 export const updateWebProject = async (id, data) => {
   const { urls, hints } = await saveProjectScreenshots(data, id);
+  const { screenshots, ...cleanData } = data;
   await updateDoc(doc(db, "webProjects", id), {
-    ...data,
+    ...cleanData,
     screenshots: urls,
     imageHints: hints,
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
@@ -104,15 +104,17 @@ export const updateWebProject = async (id, data) => {
 };
 export const deleteWebProject = (id) => deleteDoc(doc(db, "webProjects", id));
 
+// --- MOBILE PROJECTS ---
 export const getMobileProjects = () => fetchProjects(mobileProjectsRef);
 export const addMobileProject = async (data) => {
   const { urls, hints } = await saveProjectScreenshots(
     data,
     `mob_${Date.now()}`
   );
+  const { screenshots, ...cleanData } = data;
   return (
     await addDoc(mobileProjectsRef, {
-      ...data,
+      ...cleanData,
       screenshots: urls,
       imageHints: hints,
       category: "Mobile App Development",
@@ -124,8 +126,9 @@ export const addMobileProject = async (data) => {
 };
 export const updateMobileProject = async (id, data) => {
   const { urls, hints } = await saveProjectScreenshots(data, id);
+  const { screenshots, ...cleanData } = data;
   await updateDoc(doc(db, "mobileProjects", id), {
-    ...data,
+    ...cleanData,
     screenshots: urls,
     imageHints: hints,
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
@@ -135,15 +138,17 @@ export const updateMobileProject = async (id, data) => {
 export const deleteMobileProject = (id) =>
   deleteDoc(doc(db, "mobileProjects", id));
 
+// --- SAAS PROJECTS ---
 export const getSaasProjects = () => fetchProjects(saasProjectsRef);
 export const addSaasProject = async (data) => {
   const { urls, hints } = await saveProjectScreenshots(
     data,
     `saas_${Date.now()}`
   );
+  const { screenshots, ...cleanData } = data;
   return (
     await addDoc(saasProjectsRef, {
-      ...data,
+      ...cleanData,
       screenshots: urls,
       imageHints: hints,
       category: "SaaS Development",
@@ -155,8 +160,9 @@ export const addSaasProject = async (data) => {
 };
 export const updateSaasProject = async (id, data) => {
   const { urls, hints } = await saveProjectScreenshots(data, id);
+  const { screenshots, ...cleanData } = data;
   await updateDoc(doc(db, "saasProjects", id), {
-    ...data,
+    ...cleanData,
     screenshots: urls,
     imageHints: hints,
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
@@ -165,15 +171,17 @@ export const updateSaasProject = async (id, data) => {
 };
 export const deleteSaasProject = (id) => deleteDoc(doc(db, "saasProjects", id));
 
+// --- MARKETING & ADS PROJECTS ---
 export const getMarketingAdProjects = () =>
   fetchProjects(marketingAdProjectsRef);
 export const addMarketingAdProject = async (data) => {
   let url = data.imageSrc || "";
   if (data.imageFile)
     url = await uploadMarketingAdImage(data.imageFile, `mad_${Date.now()}`);
+  const { imageFile, ...cleanData } = data;
   return (
     await addDoc(marketingAdProjectsRef, {
-      ...data,
+      ...cleanData,
       imageSrc: url,
       category: "Marketing & Ads Design",
       deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
@@ -185,8 +193,9 @@ export const addMarketingAdProject = async (data) => {
 export const updateMarketingAdProject = async (id, data) => {
   let url = data.imageSrc;
   if (data.imageFile) url = await uploadMarketingAdImage(data.imageFile, id);
+  const { imageFile, ...cleanData } = data;
   await updateDoc(doc(db, "marketingAdProjects", id), {
-    ...data,
+    ...cleanData,
     imageSrc: url,
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
     updatedAt: serverTimestamp(),
@@ -196,7 +205,6 @@ export const deleteMarketingAdProject = (id) =>
   deleteDoc(doc(db, "marketingAdProjects", id));
 
 // --- BLOG SYSTEM ---
-
 export const getBlogPosts = async (filters = {}) => {
   const constraints = [];
   if (filters.category)
@@ -210,12 +218,12 @@ export const getBlogPosts = async (filters = {}) => {
     return {
       id: d.id,
       ...data,
-      date: data.date.toDate().toISOString(),
+      date: data.date?.toDate().toISOString() || new Date().toISOString(),
       createdAt: data.createdAt?.toDate().toISOString(),
       updatedAt: data.updatedAt?.toDate().toISOString(),
       comments: (data.comments || []).map((c) => ({
         ...c,
-        date: c.date.toDate().toISOString(),
+        date: c.date?.toDate().toISOString(),
       })),
     };
   });
@@ -225,13 +233,19 @@ export const addBlogPost = async (postData) => {
   const tempId = `blog_${Date.now()}`;
   let mainImg = postData.imageSrc || "";
   if (postData.imageFile)
-    mainImg = await uploadBlogImage(postData.imageFile, tempId, "main");
+    mainImg = await uploadBlogImage(postData.imageFile, tempId, "mainImage");
   let authImg = postData.authorImageSrc || "";
   if (postData.authorImageFile)
-    authImg = await uploadBlogImage(postData.authorImageFile, tempId, "auth");
+    authImg = await uploadBlogImage(
+      postData.authorImageFile,
+      tempId,
+      "authorImage"
+    );
+
+  const { imageFile, authorImageFile, ...cleanData } = postData;
   return (
     await addDoc(blogPostsRef, {
-      ...postData,
+      ...cleanData,
       imageSrc: mainImg,
       authorImageSrc: authImg,
       likes: 0,
@@ -245,11 +259,24 @@ export const addBlogPost = async (postData) => {
   ).id;
 };
 
-export const updateBlogPost = (id, data) =>
-  updateDoc(doc(db, "blogPosts", id), {
-    ...data,
+export const updateBlogPost = async (id, data) => {
+  let mainImg = data.imageSrc || "";
+  if (data.imageFile)
+    mainImg = await uploadBlogImage(data.imageFile, id, "mainImage");
+  let authImg = data.authorImageSrc || "";
+  if (data.authorImageFile)
+    authImg = await uploadBlogImage(data.authorImageFile, id, "authorImage");
+
+  const { imageFile, authorImageFile, ...cleanData } = data;
+  await updateDoc(doc(db, "blogPosts", id), {
+    ...cleanData,
+    imageSrc: mainImg,
+    authorImageSrc: authImg,
+    date: Timestamp.fromDate(new Date(data.date)),
     updatedAt: serverTimestamp(),
   });
+};
+
 export const deleteBlogPost = (id) => deleteDoc(doc(db, "blogPosts", id));
 export const updateBlogPostEngagement = (id, updates) =>
   updateDoc(doc(db, "blogPosts", id), {
@@ -263,8 +290,9 @@ export const addCommentToBlogPost = (id, comment) =>
     updatedAt: serverTimestamp(),
   });
 
-// --- CONTACT MESSAGES (Restored) ---
-
+// --- CONTACT MESSAGES ---
+export const addContactMessage = (data) =>
+  addDoc(contactsRef, { ...data, createdAt: serverTimestamp() });
 export const getContactMessages = async () => {
   const q = query(contactsRef, orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
@@ -275,14 +303,9 @@ export const getContactMessages = async () => {
       d.data().createdAt?.toDate().toISOString() || new Date().toISOString(),
   }));
 };
-
-export const addContactMessage = (data) =>
-  addDoc(contactsRef, { ...data, createdAt: serverTimestamp() });
-
 export const deleteContactMessage = (id) => deleteDoc(doc(db, "contacts", id));
 
 // --- TESTIMONIALS ---
-
 export const getTestimonials = async (filter) => {
   const constraints = [
     where("status", "==", "approved"),
@@ -298,7 +321,6 @@ export const getTestimonials = async (filter) => {
     createdAt: d.data().createdAt?.toDate().toISOString(),
   }));
 };
-
 export const addTestimonial = (data) =>
   addDoc(testimonialsRef, {
     ...data,
@@ -314,25 +336,34 @@ export const updateTestimonial = (id, data) =>
 export const deleteTestimonial = (id) => deleteDoc(doc(db, "testimonials", id));
 
 // --- SITE CONTENT & BANNERS ---
-
 export const getAdsBannerContent = async () => {
   const snap = await getDoc(doc(siteContentRef, "mainBanner"));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
-export const setAdsBannerContent = (data) =>
-  setDoc(
+export const setAdsBannerContent = async (data) => {
+  let url = data.imageUrl;
+  if (data.imageFile)
+    url = await uploadAdsBannerImage(data.imageFile, "mainBanner");
+  const { imageFile, ...cleanData } = data;
+  await setDoc(
     doc(siteContentRef, "mainBanner"),
-    { ...data, updatedAt: serverTimestamp() },
+    { ...cleanData, imageUrl: url, updatedAt: serverTimestamp() },
     { merge: true }
   );
+};
 
 export const getTopHeaderBannerContent = async () => {
   const snap = await getDoc(doc(siteContentRef, "topHeaderBanner"));
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
-export const setTopHeaderBannerContent = (data) =>
-  setDoc(
+export const setTopHeaderBannerContent = async (data) => {
+  let url = data.imageUrl;
+  if (data.imageFile)
+    url = await uploadTopHeaderBannerImage(data.imageFile, "topHeaderBanner");
+  const { imageFile, ...cleanData } = data;
+  await setDoc(
     doc(siteContentRef, "topHeaderBanner"),
-    { ...data, updatedAt: serverTimestamp() },
+    { ...cleanData, imageUrl: url, updatedAt: serverTimestamp() },
     { merge: true }
   );
+};

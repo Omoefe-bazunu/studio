@@ -59,13 +59,13 @@ const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
       );
     },
     [project.screenshots.length]
-  ); // [cite: 12]
+  );
 
   useEffect(() => {
     if (project.screenshots?.length <= 1) return;
     const t = setTimeout(() => paginate(1), 5000);
     return () => clearTimeout(t);
-  }, [idx, paginate, project.screenshots]); // [cite: 13]
+  }, [idx, paginate, project.screenshots]);
 
   return (
     <Card className="group overflow-hidden border-none shadow-xl flex flex-col bg-white transition-all hover:translate-y-[-5px]">
@@ -169,7 +169,7 @@ const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
 export default function MobileAppDevelopmentService({
   initialProjectsData = [],
 }) {
-  const { isAdmin, loadingAuth } = useAuth(); // [cite: 42]
+  const { isAdmin, loadingAuth } = useAuth();
   const { toast } = useToast();
   const [projects, setProjects] = useState(initialProjectsData);
   const [loading, setLoading] = useState(false);
@@ -180,7 +180,6 @@ export default function MobileAppDevelopmentService({
     sub: false,
   });
 
-  // Mobile-specific WhatsApp Lead link [cite: 91, 92]
   const whatsappLink = `https://wa.me/447344685126?text=${encodeURIComponent(
     "Hello High-ER Enterprises, I want to develop a custom mobile application for my business."
   )}`;
@@ -265,7 +264,7 @@ export default function MobileAppDevelopmentService({
         </div>
       </section>
 
-      {/* 2. PORTFOLIO GRID SECTION [cite: 68] */}
+      {/* 2. PORTFOLIO GRID SECTION */}
       <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="flex justify-between items-end mb-16">
@@ -285,7 +284,6 @@ export default function MobileAppDevelopmentService({
                 className="bg-[#FF8C38] rounded-full px-8"
               >
                 <PlusCircle className="mr-2 h-5 w-5" /> Add Mobile Project
-                [cite: 69]
               </Button>
             )}
           </div>
@@ -311,13 +309,24 @@ export default function MobileAppDevelopmentService({
         </div>
       </section>
 
-      {/* Admin Modals [cite: 77, 81] */}
+      {/* Admin Modals */}
       {isAdmin && (
         <ProjectForm
           isOpen={modal.open}
           onOpenChange={(v) => setModal((p) => ({ ...p, open: v }))}
           onSubmit={handleForm}
-          initialData={modal.edit}
+          // MAP stored string arrays back to the Form's object array structure
+          initialData={
+            modal.edit
+              ? {
+                  ...modal.edit,
+                  screenshots: (modal.edit.screenshots || []).map((url, i) => ({
+                    url: url,
+                    hint: modal.edit.imageHints?.[i] || "",
+                  })),
+                }
+              : null
+          }
           isLoading={modal.sub}
         />
       )}

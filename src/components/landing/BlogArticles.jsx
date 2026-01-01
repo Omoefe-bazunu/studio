@@ -75,7 +75,7 @@ export default function BlogArticles() {
               Expert Insights
             </p>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tighter">
-              Latest from <span className="text-[#6B46C1]">The Blog.</span>
+              Latest Blogs
             </h2>
           </div>
           <Button

@@ -50,9 +50,6 @@ import {
 
 const ITEMS_PER_PAGE = 4;
 
-/**
- * Sub-Component: ProjectCard with Animated Screenshot Carousel
- */
 const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState(0);
@@ -360,7 +357,18 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
           isOpen={modal.open}
           onOpenChange={(v) => setModal((p) => ({ ...p, open: v }))}
           onSubmit={handleFormSubmit}
-          initialData={modal.edit}
+          // MAP stored string arrays back to the Form's object array structure
+          initialData={
+            modal.edit
+              ? {
+                  ...modal.edit,
+                  screenshots: (modal.edit.screenshots || []).map((url, i) => ({
+                    url: url,
+                    hint: modal.edit.imageHints?.[i] || "",
+                  })),
+                }
+              : null
+          }
           isLoading={modal.sub}
         />
       )}
