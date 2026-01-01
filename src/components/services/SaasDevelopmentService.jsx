@@ -10,7 +10,6 @@ import {
   ChevronRight,
   ExternalLink,
   CalendarDays,
-  Sparkles,
   MessageCircle,
   PlusCircle,
   Loader2,
@@ -28,7 +27,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -51,7 +49,17 @@ import {
 
 const ITEMS_PER_PAGE = 4;
 
-const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
+/**
+ * Sub-Component: ProjectCard
+ * Features an optimized screenshot carousel and accessibility enhancements.
+ */
+const ProjectCard = ({
+  project,
+  onEdit,
+  onDelete,
+  isAdmin,
+  isPriority = false,
+}) => {
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState(0);
 
@@ -94,13 +102,16 @@ const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
           >
             <Image
               src={project.screenshots[idx]}
-              alt={project.title}
+              alt={`Screenshot ${idx + 1} of ${project.title}`} // FIX: Descriptive Alt Text
               fill
+              priority={isPriority} // FIX: Performance (LCP) for top row
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
             />
           </motion.div>
         </AnimatePresence>
 
+        {/* Carousel Controls */}
         {project.screenshots.length > 1 && (
           <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
             <Button
@@ -108,20 +119,23 @@ const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
               variant="ghost"
               className="bg-white/20 backdrop-blur-md rounded-full text-white"
               onClick={() => paginate(-1)}
+              aria-label="Previous screenshot" // FIX: Accessible Button Name
             >
-              <ChevronLeft />
+              <ChevronLeft aria-hidden="true" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
               className="bg-white/20 backdrop-blur-md rounded-full text-white"
               onClick={() => paginate(1)}
+              aria-label="Next screenshot" // FIX: Accessible Button Name
             >
-              <ChevronRight />
+              <ChevronRight aria-hidden="true" />
             </Button>
           </div>
         )}
 
+        {/* Admin controls */}
         {isAdmin && (
           <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
@@ -129,35 +143,43 @@ const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
               size="icon"
               className="h-8 w-8 bg-white/90 rounded-full"
               onClick={() => onEdit(project)}
+              aria-label={`Edit ${project.title}`}
             >
-              <Edit3 className="h-4 w-4 text-[#6B46C1]" />
+              <Edit3 className="h-4 w-4 text-[#6B46C1]" aria-hidden="true" />
             </Button>
             <Button
               variant="destructive"
               size="icon"
               className="h-8 w-8 rounded-full"
               onClick={() => onDelete(project.id)}
+              aria-label={`Delete ${project.title}`}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         )}
       </CardHeader>
 
       <CardContent className="p-8 flex-grow">
+        {/* FIX: Ensure CardTitle renders as H3 for proper hierarchy */}
         <CardTitle className="text-2xl font-bold text-slate-900 mb-3">
-          {project.title}
+          <h3>{project.title}</h3>
         </CardTitle>
         <CardDescription className="text-slate-500 line-clamp-3 mb-6">
           {project.description}
         </CardDescription>
         <div className="flex items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
-          <CalendarDays className="h-4 w-4 mr-2 text-[#FF8C38]" />
-          Deployed:{" "}
-          {new Date(project.deliveryDate).toLocaleDateString("en-US", {
-            month: "long",
-            year: "numeric",
-          })}
+          <CalendarDays
+            className="h-4 w-4 mr-2 text-[#FF8C38]"
+            aria-hidden="true"
+          />
+          <span>
+            Deployed:{" "}
+            {new Date(project.deliveryDate).toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
         </div>
       </CardContent>
 
@@ -166,8 +188,13 @@ const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
           asChild
           className="w-fit h-12 rounded-full bg-[#6B46C1] hover:bg-[#5a3aaa] font-bold"
         >
-          <Link href={project.liveUrl || "#"} target="_blank">
-            Access Platform <ExternalLink className="ml-2 h-4 w-4" />
+          <Link
+            href={project.liveUrl || "#"}
+            target="_blank"
+            aria-label={`Access the live ${project.title} platform`}
+          >
+            Access Platform{" "}
+            <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>
       </CardFooter>
@@ -240,7 +267,10 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
 
   if (loadingAuth)
     return (
-      <div className="h-screen flex items-center justify-center bg-[#0F0A1F]">
+      <div
+        className="h-screen flex items-center justify-center bg-[#0F0A1F]"
+        aria-busy="true"
+      >
         <Loader2 className="animate-spin text-white w-12 h-12" />
       </div>
     );
@@ -248,19 +278,31 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
   return (
     <div className="flex flex-col">
       {/* 1. HERO SECTION */}
-      <section className="relative py-24 bg-[#0F0A1F] text-center overflow-hidden">
+      <section
+        className="relative py-24 bg-[#0F0A1F] text-center overflow-hidden"
+        aria-labelledby="saas-hero-title"
+      >
         <div
           className="absolute inset-0 opacity-40"
           style={{
             background: `radial-gradient(circle at 50% 50%, #6B46C1 0%, transparent 75%)`,
           }}
+          aria-hidden="true"
         />
+        <div
+          className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/stardust.png')] opacity-10"
+          aria-hidden="true"
+        />
+
         <div className="relative z-10 container mx-auto px-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-purple-200 text-sm mb-8">
-            <Layers className="w-4 h-4 text-[#FF8C38]" />{" "}
+            <Layers className="w-4 h-4 text-[#FF8C38]" aria-hidden="true" />{" "}
             <span>Enterprise SaaS Engineering</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-8">
+          <h1
+            id="saas-hero-title"
+            className="text-5xl md:text-7xl font-bold text-white leading-tight mb-8"
+          >
             Scalable SaaS. <br />
             <span className="text-[#FF8C38]">Built to Scale Globally.</span>
           </h1>
@@ -274,19 +316,30 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
             size="lg"
             className="bg-[#6B46C1] hover:bg-[#5a3aaa] text-white rounded-full h-16 px-12 text-lg font-bold shadow-2xl transition-all hover:scale-105"
           >
-            <Link href={whatsappLink} target="_blank">
-              Start Your SaaS <MessageCircle className="ml-2 h-6 w-6" />
+            <Link
+              href={whatsappLink}
+              target="_blank"
+              aria-label="Inquire about SaaS development via WhatsApp"
+            >
+              Start Your SaaS{" "}
+              <MessageCircle className="ml-2 h-6 w-6" aria-hidden="true" />
             </Link>
           </Button>
         </div>
       </section>
 
       {/* 2. PORTFOLIO GRID SECTION */}
-      <section className="py-24 bg-slate-50">
+      <section
+        className="py-24 bg-slate-50"
+        aria-labelledby="saas-portfolio-title"
+      >
         <div className="container mx-auto px-6">
-          <div className="flex justify-between items-end mb-16">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div className=" w-full text-center mx-auto">
-              <h2 className="text-4xl font-bold text-slate-900 mb-2">
+              <h2
+                id="saas-portfolio-title"
+                className="text-4xl font-bold text-slate-900 mb-2"
+              >
                 SaaS Portfolio
               </h2>
               <p className="text-slate-500">
@@ -298,24 +351,27 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
                 onClick={() =>
                   setModal((p) => ({ ...p, open: true, edit: null }))
                 }
-                className="bg-[#FF8C38] rounded-full px-8"
+                className="bg-[#FF8C38] hover:bg-[#e67e32] text-white rounded-full px-8"
+                aria-label="Add a new SaaS project"
               >
-                <PlusCircle className="mr-2 h-5 w-5" /> Add SaaS Project
+                <PlusCircle className="mr-2 h-5 w-5" aria-hidden="true" /> Add
+                SaaS Project
               </Button>
             )}
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-20">
+            <div className="flex justify-center py-20" aria-busy="true">
               <Loader2 className="animate-spin text-[#6B46C1] h-12 w-12" />
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {currentProjects.map((p) => (
+              {currentProjects.map((p, index) => (
                 <ProjectCard
                   key={p.id}
                   project={p}
                   isAdmin={isAdmin}
+                  isPriority={index < 2} // FIX: Performance (LCP) for top row images
                   onEdit={(proj) =>
                     setModal((p) => ({ ...p, open: true, edit: proj }))
                   }
@@ -326,16 +382,20 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
           )}
 
           {totalPages > 1 && (
-            <div className="mt-16 flex justify-center items-center gap-6">
+            <nav
+              className="mt-16 flex justify-center items-center gap-6"
+              aria-label="SaaS Portfolio pagination"
+            >
               <Button
                 variant="outline"
                 className="rounded-full border-slate-200"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
+                aria-label="Go to previous page"
               >
-                <ChevronLeft /> Previous
+                <ChevronLeft aria-hidden="true" /> Previous
               </Button>
-              <span className="font-bold text-slate-400">
+              <span className="font-bold text-slate-400" aria-current="page">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
@@ -345,10 +405,11 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
+                aria-label="Go to next page"
               >
-                Next <ChevronRight />
+                Next <ChevronRight aria-hidden="true" />
               </Button>
-            </div>
+            </nav>
           )}
         </div>
       </section>
@@ -359,7 +420,6 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
           isOpen={modal.open}
           onOpenChange={(v) => setModal((p) => ({ ...p, open: v }))}
           onSubmit={handleFormSubmit}
-          // MAP stored string arrays back to the Form's object array structure
           initialData={
             modal.edit
               ? {
@@ -374,6 +434,7 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
           isLoading={modal.sub}
         />
       )}
+
       <AlertDialog
         open={!!modal.del}
         onOpenChange={() => setModal((p) => ({ ...p, del: null }))}
@@ -391,7 +452,7 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-destructive rounded-full"
+              className="bg-destructive hover:bg-red-700 rounded-full"
             >
               Delete
             </AlertDialogAction>

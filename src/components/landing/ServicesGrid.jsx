@@ -17,7 +17,6 @@ import {
   Smartphone,
   Layers,
   Megaphone,
-  Sparkles,
   ArrowRight,
 } from "lucide-react";
 
@@ -78,14 +77,22 @@ const servicesData = [
 
 export default function ServicesGrid() {
   return (
-    <section id="services" className="py-20 bg-slate-50">
+    <section
+      id="services"
+      className="py-20 bg-slate-50"
+      aria-labelledby="services-heading"
+    >
       <div className="container mx-auto px-6 max-w-7xl">
         {/* Header Section */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 text-[#6B46C1] text-xs font-bold uppercase tracking-wider mb-4">
+          <p className="inline-flex items-center gap-2 px-3 py-1 text-[#6B46C1] text-xs font-bold uppercase tracking-wider mb-4">
             Our Expertise
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+          </p>
+          {/* FIX: Explicit ID for section labeling */}
+          <h2
+            id="services-heading"
+            className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
+          >
             Tailored Tech Solutions
           </h2>
           <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
@@ -96,7 +103,7 @@ export default function ServicesGrid() {
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-          {servicesData.map((service) => (
+          {servicesData.map((service, index) => (
             <Card
               key={service.id}
               className="group border-none shadow-xl shadow-slate-200/60 rounded-[2.5rem] overflow-hidden flex flex-col bg-white hover:translate-y-[-5px] transition-all duration-300"
@@ -104,29 +111,36 @@ export default function ServicesGrid() {
               <CardHeader className="p-0 relative h-72 w-full overflow-hidden">
                 <Image
                   src={service.imageSrc}
-                  alt={service.title}
+                  alt={`Illustration of ${service.title} services`} // FIX: More descriptive alt text
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  {...(index < 2 ? { priority: true } : {})} // FIX: Priority for first row to improve LCP
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // FIX: Performance (responsive sizing)
                 />
-                {/* Modern Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0F0A1F]/80 via-transparent to-transparent" />
 
                 {/* Floating Icon */}
-                <div className="absolute bottom-6 left-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl">
+                <div
+                  className="absolute bottom-6 left-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl"
+                  aria-hidden="true"
+                >
                   <service.icon className="h-8 w-8 text-white" />
                 </div>
               </CardHeader>
 
               <CardContent className="p-8 md:p-10 flex-grow">
+                {/* FIX: Ensure CardTitle is an H3 for heading hierarchy */}
                 <CardTitle className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-                  {service.title}
+                  <h3 className="inline">{service.title}</h3>
                 </CardTitle>
 
                 <ul className="space-y-4 mt-6">
                   {service.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-3">
-                      {/* Orange Checkmarks for high-energy contrast */}
-                      <CheckCircle className="h-5 w-5 text-[#FF8C38] mt-0.5 flex-shrink-0" />
+                      <CheckCircle
+                        className="h-5 w-5 text-[#FF8C38] mt-0.5 flex-shrink-0"
+                        aria-hidden="true"
+                      />
                       <span className="text-slate-600 font-medium">
                         {feature}
                       </span>
@@ -141,7 +155,13 @@ export default function ServicesGrid() {
                   asChild
                   className="flex-1 rounded-full border-slate-200 h-14 font-bold text-slate-600 hover:bg-slate-50 hover:text-[#5a3aaa]"
                 >
-                  <Link href={`/services/${service.id}`}>View Portfolio</Link>
+                  {/* FIX: Accessible name for links */}
+                  <Link
+                    href={`/services/${service.id}`}
+                    aria-label={`View portfolio for ${service.title}`}
+                  >
+                    View Portfolio
+                  </Link>
                 </Button>
                 <Button
                   asChild
@@ -150,8 +170,10 @@ export default function ServicesGrid() {
                   <Link
                     href={`/contact?service=${service.id}`}
                     className="flex items-center gap-2"
+                    aria-label={`Start project for ${service.title}`}
                   >
-                    Start Project <ArrowRight className="h-4 w-4" />
+                    Start Project{" "}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
               </CardFooter>

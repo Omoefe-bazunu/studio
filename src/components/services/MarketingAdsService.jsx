@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+// import { useVisitorTracker } from "@/hooks/useVisitorTracker";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -91,22 +92,15 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
     }
   };
 
-  /**
-   * FIX: Mapping ProjectForm data to MarketingAd structure
-   * ProjectForm returns { screenshots: [{file, url}] }
-   * MarketingAd service expects { imageFile, imageSrc }
-   */
   const handleFormSubmit = async (formData) => {
     setModal((p) => ({ ...p, sub: true }));
     try {
       const submissionData = {
         ...formData,
-        // Extract the first file from the screenshots array for Marketing Ads
         imageFile: formData.screenshots?.[0]?.file || null,
         imageSrc: formData.screenshots?.[0]?.url || formData.imageSrc || "",
       };
 
-      // Remove the screenshots array to prevent the "Unsupported field value" error in Firestore
       delete submissionData.screenshots;
 
       if (modal.edit) {
@@ -146,7 +140,10 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
 
   if (loadingAuth)
     return (
-      <div className="h-screen flex items-center justify-center bg-[#0F0A1F]">
+      <div
+        className="h-screen flex items-center justify-center bg-[#0F0A1F]"
+        aria-busy="true"
+      >
         <Loader2 className="animate-spin text-white w-12 h-12" />
       </div>
     );
@@ -154,22 +151,29 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
   return (
     <div className="flex flex-col">
       {/* HERO SECTION */}
-      <section className="relative py-24 bg-[#0F0A1F] text-center overflow-hidden">
+      <section
+        className="relative py-24 bg-[#0F0A1F] text-center overflow-hidden"
+        aria-labelledby="marketing-hero-title"
+      >
         <div
           className="absolute inset-0 opacity-40"
           style={{
             background: `radial-gradient(circle at 50% 50%, #FF8C38 0%, transparent 75%)`,
           }}
+          aria-hidden="true"
         />
         <div className="relative z-10 container mx-auto px-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-orange-200 text-sm mb-8">
-            <Megaphone className="w-4 h-4 text-[#FF8C38]" />
+            <Megaphone className="w-4 h-4 text-[#FF8C38]" aria-hidden="true" />
             <span>Creative Design Studio</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-8">
+          <h1
+            id="marketing-hero-title"
+            className="text-5xl md:text-7xl font-bold text-white leading-tight mb-8"
+          >
             Designs that <span className="text-[#FF8C38]">Sell.</span>
           </h1>
-          <p className="mt-8 text-xl text-white max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="mt-8 text-xl text-gray-200 max-w-2xl mx-auto mb-10 leading-relaxed">
             Create eye-catchy and scroll-stopping visuals that communicate your
             message clearly in seconds.
           </p>
@@ -178,19 +182,30 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
             size="lg"
             className="bg-[#6B46C1] hover:bg-[#5a3aaa] text-white rounded-full h-16 px-12 text-lg font-bold shadow-2xl transition-all hover:scale-105"
           >
-            <Link href={whatsappLink} target="_blank">
-              Start Your Design <MessageCircle className="ml-2 h-6 w-6" />
+            <Link
+              href={whatsappLink}
+              target="_blank"
+              aria-label="Start your design project via WhatsApp"
+            >
+              Start Your Design{" "}
+              <MessageCircle className="ml-2 h-6 w-6" aria-hidden="true" />
             </Link>
           </Button>
         </div>
       </section>
 
       {/* SLIDING PORTFOLIO SECTION */}
-      <section className="py-24 bg-slate-50 min-h-[850px] flex flex-col justify-center overflow-hidden">
+      <section
+        className="py-24 bg-slate-50 min-h-[850px] flex flex-col justify-center overflow-hidden"
+        aria-labelledby="featured-work-title"
+      >
         <div className="container mx-auto px-6">
           <div className="flex flex-col justify-between items-center mb-16 gap-6 text-center md:text-left">
             <div className="mx-auto text-center w-full">
-              <h2 className="text-4xl font-bold text-slate-900 mb-2">
+              <h2
+                id="featured-work-title"
+                className="text-4xl font-bold text-slate-900 mb-2"
+              >
                 Featured Work
               </h2>
               <p className="text-slate-500">
@@ -203,14 +218,20 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                   setModal((p) => ({ ...p, open: true, edit: null }))
                 }
                 className="bg-[#FF8C38] rounded-full px-8 hover:bg-[#e67e32] h-12 font-bold"
+                aria-label="Add a new marketing asset"
               >
-                <PlusCircle className="mr-2 h-5 w-5" /> Add Asset
+                <PlusCircle className="mr-2 h-5 w-5" aria-hidden="true" /> Add
+                Asset
               </Button>
             )}
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
+            <div
+              className="flex flex-col items-center justify-center py-20"
+              aria-busy="true"
+              aria-live="polite"
+            >
               <Loader2 className="animate-spin text-[#6B46C1] h-12 w-12 mb-4" />
               <p className="text-slate-400 animate-pulse uppercase tracking-widest text-xs font-bold">
                 Syncing Portfolio...
@@ -236,16 +257,24 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                         onClick={() =>
                           window.open(projects[currentIndex].imageSrc, "_blank")
                         }
+                        aria-label={`View full size image for ${projects[currentIndex].title}`}
+                        role="button"
+                        tabIndex={0}
                       >
                         <Image
                           src={projects[currentIndex].imageSrc}
-                          alt={projects[currentIndex].title}
+                          alt={`Marketing design: ${projects[currentIndex].title}`} // FIX: Descriptive Alt Text
                           fill
+                          priority={true} // FIX: Performance (LCP) for the current slide
+                          sizes="(max-width: 768px) 100vw, 60vw"
                           className="object-contain md:object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <div className="bg-white/90 p-4 rounded-full shadow-2xl scale-75 group-hover:scale-100 transition-transform">
-                            <Maximize2 className="w-6 h-6 text-[#6B46C1]" />
+                            <Maximize2
+                              className="w-6 h-6 text-[#6B46C1]"
+                              aria-hidden="true"
+                            />
                           </div>
                         </div>
                       </div>
@@ -266,8 +295,12 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                                   edit: projects[currentIndex],
                                 }));
                               }}
+                              aria-label={`Edit ${projects[currentIndex].title}`}
                             >
-                              <Edit3 className="w-4 h-4 text-[#6B46C1]" />
+                              <Edit3
+                                className="w-4 h-4 text-[#6B46C1]"
+                                aria-hidden="true"
+                              />
                             </Button>
                             <Button
                               variant="destructive"
@@ -280,14 +313,16 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                                   del: projects[currentIndex].id,
                                 }));
                               }}
+                              aria-label={`Delete ${projects[currentIndex].title}`}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4" aria-hidden="true" />
                             </Button>
                           </div>
                         )}
                         <Badge className="w-fit mb-6 bg-orange-100 text-[#FF8C38] rounded-full border-none px-4 py-1 font-bold text-[10px] uppercase tracking-widest">
                           {projects[currentIndex].category}
                         </Badge>
+                        {/* FIX: Use H3 for proper semantic map */}
                         <h3 className="text-3xl font-black text-slate-900 mb-4 leading-tight tracking-tighter">
                           {projects[currentIndex].title}
                         </h3>
@@ -295,14 +330,19 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                           {projects[currentIndex].description}
                         </p>
                         <div className="mt-auto pt-8 border-t border-slate-50 flex items-center text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                          <CalendarDays className="w-4 h-4 mr-2 text-[#6B46C1]" />
-                          Campaign Date:{" "}
-                          {new Date(
-                            projects[currentIndex].deliveryDate
-                          ).toLocaleDateString("en-US", {
-                            month: "long",
-                            year: "numeric",
-                          })}
+                          <CalendarDays
+                            className="w-4 h-4 mr-2 text-[#6B46C1]"
+                            aria-hidden="true"
+                          />
+                          <span>
+                            Campaign Date:{" "}
+                            {new Date(
+                              projects[currentIndex].deliveryDate
+                            ).toLocaleDateString("en-US", {
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </span>
                         </div>
                       </div>
                     </Card>
@@ -311,16 +351,20 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
               </div>
 
               {/* Navigation Controls */}
-              <div className="flex justify-center md:justify-start items-center gap-4 mt-12">
+              <nav
+                className="flex justify-center md:justify-start items-center gap-4 mt-12"
+                aria-label="Portfolio navigation"
+              >
                 <Button
                   onClick={() => paginate(-1)}
                   size="icon"
                   variant="outline"
                   className="h-12 w-12 rounded-full shadow-xl bg-white border-none text-[#6B46C1] hover:bg-[#6B46C1] hover:text-white transition-all"
+                  aria-label="Previous featured work"
                 >
-                  <ChevronLeft className="w-6 h-6" />
+                  <ChevronLeft className="w-6 h-6" aria-hidden="true" />
                 </Button>
-                <div className="flex gap-2 mx-4">
+                <div className="flex gap-2 mx-4" role="tablist">
                   {projects.map((_, i) => (
                     <button
                       key={i}
@@ -328,6 +372,9 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                         setDirection(i > currentIndex ? 1 : -1);
                         setCurrentIndex(i);
                       }}
+                      role="tab"
+                      aria-selected={i === currentIndex}
+                      aria-label={`Go to slide ${i + 1}`}
                       className={`h-1.5 transition-all duration-500 rounded-full ${
                         i === currentIndex
                           ? "w-10 bg-[#6B46C1]"
@@ -341,14 +388,21 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
                   size="icon"
                   variant="outline"
                   className="h-12 w-12 rounded-full shadow-xl bg-white border-none text-[#6B46C1] hover:bg-[#6B46C1] hover:text-white transition-all"
+                  aria-label="Next featured work"
                 >
-                  <ChevronRight className="w-6 h-6" />
+                  <ChevronRight className="w-6 h-6" aria-hidden="true" />
                 </Button>
-              </div>
+              </nav>
             </div>
           ) : (
-            <div className="text-center py-32 bg-white border-2 border-dashed border-slate-200 rounded-lg max-w-3xl mx-auto">
-              <Megaphone className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+            <div
+              className="text-center py-32 bg-white border-2 border-dashed border-slate-200 rounded-lg max-w-3xl mx-auto"
+              role="status"
+            >
+              <Megaphone
+                className="w-12 h-12 text-slate-200 mx-auto mb-4"
+                aria-hidden="true"
+              />
               <p className="text-slate-400 font-medium tracking-tight">
                 Creative assets are being rendered.
               </p>
@@ -363,7 +417,6 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
           isOpen={modal.open}
           onOpenChange={(v) => setModal((p) => ({ ...p, open: v }))}
           onSubmit={handleFormSubmit}
-          // Mapping single imageSrc back to screenshots array for the form to display correctly
           initialData={
             modal.edit
               ? {
