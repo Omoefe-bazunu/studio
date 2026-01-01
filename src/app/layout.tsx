@@ -6,11 +6,19 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import FirebaseAnalyticsProvider from "@/components/analytics/FirebaseAnalyticsProvider";
 import TopHeaderBanner from "@/components/landing/TopHeaderBanner";
-import TawkToWidget from "@/components/TawkToWidget"; // Import the new component
+import TawkToWidget from "@/components/TawkToWidget";
 
 export const metadata: Metadata = {
   title: "HIGH-ER Hub",
   description: "Quality & Affordability by HIGH-ER ENTERPRISES",
+  // Google Search Console Verification
+  verification: {
+    google: "562941b20bc6c9a2",
+  },
+  // Recommended: Add icons for a more professional browser tab
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -20,16 +28,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <head>
-        {/* Next.js automatically handles essential head elements. */}
-      </head>
       <body className="antialiased font-sans">
         <AuthProvider>
           <FirebaseAnalyticsProvider />
           <TopHeaderBanner />
           {children}
           <Toaster />
-          <TawkToWidget /> {/* Add the TawkToWidget component */}
+          <TawkToWidget />
         </AuthProvider>
       </body>
     </html>
