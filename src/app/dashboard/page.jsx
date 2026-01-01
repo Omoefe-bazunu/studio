@@ -30,6 +30,10 @@ export default function DashboardPage() {
     router.push("/");
   };
 
+  const handleAdmin = () => {
+    router.push("/admin");
+  };
+
   const handleContactSupport = () => {
     window.location.href =
       "mailto:support@higher.com.ng?subject=Support Request - " +
@@ -68,8 +72,15 @@ export default function DashboardPage() {
             </div>
 
             {isAdmin && (
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] font-black uppercase tracking-widest">
-                <ShieldCheck className="w-3 h-3" /> Admin Access
+              <div className="mt-4 inline-flex flex-col items-center gap-2 px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] font-black uppercase tracking-widest">
+                <ShieldCheck className="w-3 h-3" />
+                <p> Admin Access</p>
+                <Button
+                  onClick={handleAdmin}
+                  className="w-full h-12 bg-[#6B46C1] hover:bg-[#5a3aaa] text-white font-bold rounded-full flex items-center justify-center gap-2"
+                >
+                  Admin Dashboard
+                </Button>
               </div>
             )}
           </div>
