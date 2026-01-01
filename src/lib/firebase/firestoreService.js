@@ -13,6 +13,7 @@ import {
   getDoc,
   where,
   arrayUnion,
+  limit,
   increment,
   setDoc,
 } from "firebase/firestore";
@@ -34,6 +35,8 @@ const contactsRef = collection(db, "contacts");
 const blogPostsRef = collection(db, "blogPosts");
 const siteContentRef = collection(db, "siteContent");
 const pricingPlansRef = collection(db, "pricingPlans");
+// Site Visitors
+const visitorLogRef = collection(db, "visitorLog");
 
 // --- Helper: Generic Project Fetcher ---
 const fetchProjects = async (colRef) => {
@@ -366,4 +369,16 @@ export const setTopHeaderBannerContent = async (data) => {
     { ...cleanData, imageUrl: url, updatedAt: serverTimestamp() },
     { merge: true }
   );
+};
+
+//Site visitors
+
+export const getVisitorStats = async () => {
+  const q = query(visitorLogRef, orderBy("timestamp", "desc"), limit(100));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+    timestamp: d.data().timestamp?.toDate().toLocaleString() || "Just now",
+  }));
 };

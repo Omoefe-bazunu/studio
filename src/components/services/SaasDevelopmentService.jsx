@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+// import { useVisitorTracker } from "@/hooks/useVisitorTracker";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -175,6 +176,7 @@ const ProjectCard = ({ project, onEdit, onDelete, isAdmin }) => {
 };
 
 export default function SaasDevelopmentService({ initialProjectsData = [] }) {
+  // useVisitorTracker("Service: SaaS Development");
   const { isAdmin, loadingAuth } = useAuth();
   const { toast } = useToast();
   const [projects, setProjects] = useState(initialProjectsData);

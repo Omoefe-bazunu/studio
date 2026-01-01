@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+// 1. Import the tracker hook
+import { useVisitorTracker } from "@/hooks/useVisitorTracker";
 import { notFound, useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -59,6 +61,10 @@ export default function TechBlogPostPage() {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [formLoading, setFormLoading] = React.useState(false);
   const [showDelete, setShowDelete] = React.useState(false);
+
+  // 2. ACTIVATE THE TRACKER
+  // We only call it if the post object exists to ensure we have a valid title
+  useVisitorTracker(post ? `Business Blog: ${post.title}` : null);
 
   // 1. Data Retrieval
   const fetchPost = React.useCallback(async () => {

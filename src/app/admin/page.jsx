@@ -10,9 +10,18 @@ import {
 import { db } from "@/lib/firebase/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
-import { Loader2, Trash2, Users, Mail, ShieldAlert, Clock } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  Users,
+  Mail,
+  ShieldAlert,
+  Clock,
+  Activity,
+} from "lucide-react"; // Added Activity icon
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard"; // 1. Import your Analytics component
 import {
   Accordion,
   AccordionContent,
@@ -35,7 +44,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const ADMIN_EMAIL = "raniem57@gmail.com";
 
 export default function AdminDashboard() {
-  // Changed 'user' to 'currentUser' to match your AuthContext
   const { currentUser, loadingAuth, isAdmin } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -45,13 +53,8 @@ export default function AdminDashboard() {
   const [loadingData, setLoadingData] = React.useState(true);
   const [messageToDelete, setMessageToDelete] = React.useState(null);
 
-  // Authorization Check
   React.useEffect(() => {
     if (!loadingAuth) {
-      // Debugging: Check console to see why access is being denied
-      console.log("Current User Email:", currentUser?.email);
-      console.log("Admin Match:", currentUser?.email === ADMIN_EMAIL);
-
       if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
         toast({
           title: "Unauthorized Access",
@@ -104,7 +107,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // 1. Loading State (Essential to wait for Firebase)
   if (loadingAuth) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-slate-50">
@@ -116,7 +118,6 @@ export default function AdminDashboard() {
     );
   }
 
-  // 2. Access Denied State
   if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
     return (
       <div className="h-screen flex items-center justify-center bg-white p-6">
@@ -134,7 +135,6 @@ export default function AdminDashboard() {
     );
   }
 
-  // 3. Admin UI (Rendered only if authorized)
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-[#0F0A1F] py-12 mb-8 border-b border-white/5">
@@ -149,21 +149,37 @@ export default function AdminDashboard() {
       </div>
 
       <div className="container mx-auto px-6 max-w-7xl">
-        <Tabs defaultValue="messages" className="w-full">
-          <TabsList className="bg-white border p-1 rounded-full mb-8 h-14 w-fit mx-auto md:mx-0">
+        {/* Changed default to 'analytics' to see your traffic first */}
+        <Tabs defaultValue="analytics" className="w-full">
+          <TabsList className="bg-white border p-1 rounded-full mb-8 h-14 w-fit mx-auto md:mx-0 shadow-sm">
+            {/* 2. Added Analytics Tab Trigger */}
+            <TabsTrigger
+              value="analytics"
+              className="rounded-full px-8 data-[state=active]:bg-[#6B46C1] data-[state=active]:text-white font-bold transition-all"
+            >
+              <Activity className="w-4 h-4 mr-2" /> Traffic Intelligence
+            </TabsTrigger>
             <TabsTrigger
               value="messages"
-              className="rounded-full px-8 data-[state=active]:bg-[#6B46C1] data-[state=active]:text-white font-bold"
+              className="rounded-full px-8 data-[state=active]:bg-[#6B46C1] data-[state=active]:text-white font-bold transition-all"
             >
               <Mail className="w-4 h-4 mr-2" /> Messages ({messages.length})
             </TabsTrigger>
             <TabsTrigger
               value="users"
-              className="rounded-full px-8 data-[state=active]:bg-[#6B46C1] data-[state=active]:text-white font-bold"
+              className="rounded-full px-8 data-[state=active]:bg-[#6B46C1] data-[state=active]:text-white font-bold transition-all"
             >
               <Users className="w-4 h-4 mr-2" /> Users ({usersList.length})
             </TabsTrigger>
           </TabsList>
+
+          {/* 3. Added Analytics Content Section */}
+          <TabsContent
+            value="analytics"
+            className="border-none p-0 outline-none"
+          >
+            <AnalyticsDashboard />
+          </TabsContent>
 
           <TabsContent value="messages">
             <div className="bg-white border border-slate-200 rounded-none shadow-sm overflow-hidden">
