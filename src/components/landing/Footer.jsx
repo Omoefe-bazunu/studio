@@ -11,7 +11,9 @@ const footerNavLinksData = [
   { href: "/services", label: "Services" },
   { href: "/about", label: "About Us" },
   { href: "/blog", label: "Blog" },
-  { href: "/privacy-policy", label: "Privacy Policy" }, // Added for AdSense
+
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms-and-conditions", label: "Terms & Conditions" },
   { href: "/contact", label: "Contact Us" },
 ];
 

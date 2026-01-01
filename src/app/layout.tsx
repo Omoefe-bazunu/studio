@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import FirebaseAnalyticsProvider from "@/components/analytics/FirebaseAnalyticsProvider";
 import TopHeaderBanner from "@/components/landing/TopHeaderBanner";
 import TawkToWidget from "@/components/TawkToWidget";
+import CookieConsent from "@/components/CookieConsent"; // 1. Import the component
 
 export const metadata: Metadata = {
   title: "HIGH-ER Enterprises | Digital Solutions & Intelligence",
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     siteName: "HIGH-ER Enterprises",
     images: [
       {
-        url: "/og-image.png", // Place a 1200x630 image in your public folder
+        url: "/og-image.png",
         width: 1200,
         height: 630,
       },
@@ -31,11 +32,6 @@ export const metadata: Metadata = {
   },
 };
 
-// export const metadata: Metadata = {
-//   title: "HIGH-ER Hub",
-//   description: "Quality & Affordability by HIGH-ER ENTERPRISES",
-// };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -43,16 +39,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <head>
-        {/* Next.js automatically handles essential head elements. */}
-      </head>
+      <head />
       <body className="antialiased font-sans">
         <AuthProvider>
           <FirebaseAnalyticsProvider />
           <TopHeaderBanner />
+
           {children}
+
+          {/* 2. Place it here near other global widgets */}
+          <CookieConsent />
           <Toaster />
-          <TawkToWidget /> {/* Add the TawkToWidget component */}
+          <TawkToWidget />
         </AuthProvider>
       </body>
     </html>
