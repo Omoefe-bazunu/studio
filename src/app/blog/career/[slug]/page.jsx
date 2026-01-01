@@ -305,7 +305,7 @@ export default function CareerBlogPostPage() {
                   : "text-slate-400 group-hover:text-green-500"
               }`}
             />
-            Impactful ({post.likes || 0})
+            ({post.likes || 0})
           </Button>
           <Button
             variant="outline"
@@ -319,7 +319,7 @@ export default function CareerBlogPostPage() {
                   : "text-slate-400 group-hover:text-red-500"
               }`}
             />
-            Unhelpful ({post.dislikes || 0})
+            ({post.dislikes || 0})
           </Button>
         </div>
 

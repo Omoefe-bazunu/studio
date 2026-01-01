@@ -309,7 +309,7 @@ export default function TechBlogPostPage() {
                   : "text-slate-400 group-hover:text-green-500"
               }`}
             />
-            Yep ({post.likes || 0})
+            ({post.likes || 0})
           </Button>
           <Button
             variant="outline"
@@ -323,7 +323,7 @@ export default function TechBlogPostPage() {
                   : "text-slate-400 group-hover:text-red-500"
               }`}
             />
-            Nope ({post.dislikes || 0})
+            ({post.dislikes || 0})
           </Button>
         </div>
 
