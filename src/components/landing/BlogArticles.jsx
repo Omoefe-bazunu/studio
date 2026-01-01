@@ -75,8 +75,8 @@ export default function BlogArticles() {
     >
       <div className="container mx-auto px-6 max-w-7xl">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div className="max-w-2xl">
+        <div className="flex flex-col justify-between items-end mb-16 gap-6">
+          <div className="max-w-2xl m-auto text-center">
             <p className="mb-4 bg-none text-primary font-bold uppercase tracking-widest text-sm">
               Expert Insights
             </p>
