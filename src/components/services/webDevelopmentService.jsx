@@ -272,13 +272,36 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
     }
   };
 
+  // const confirmDelete = async () => {
+  //   try {
+  //     await deleteWebProject(projectToDeleteId);
+  //     toast({ title: "Deleted Successfully" });
+  //     setProjectToDeleteId(null);
+  //     fetchProjects();
+  //   } catch (e) {
+  //     toast({ title: "Delete Failed", variant: "destructive" });
+  //   }
+  // };
+
   const confirmDelete = async () => {
     try {
+      // 1. Perform the actual deletion in Firebase
       await deleteWebProject(projectToDeleteId);
+
+      // 2. OPTIMISTIC UPDATE: Remove the project from local state immediately
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== projectToDeleteId)
+      );
+
       toast({ title: "Deleted Successfully" });
+
+      // 3. Clean up UI state
       setProjectToDeleteId(null);
-      fetchProjects();
+
+      // Optional: fetchProjects() is now a backup sync rather than the primary update
+      // fetchProjects();
     } catch (e) {
+      console.error("Delete Error:", e);
       toast({ title: "Delete Failed", variant: "destructive" });
     }
   };

@@ -250,11 +250,23 @@ export default function SaasDevelopmentService({ initialProjectsData = [] }) {
 
   const confirmDelete = async () => {
     try {
+      // 1. Perform the deletion in Firestore
       await deleteSaasProject(modal.del);
+
+      // 2. OPTIMISTIC UPDATE: Filter out the deleted project from local state immediately
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== modal.del)
+      );
+
       toast({ title: "Project Deleted" });
+
+      // 3. Close the modal and reset deletion state
       setModal((p) => ({ ...p, del: null }));
-      fetchProjectsList();
+
+      // Note: fetchProjectsList() is no longer strictly necessary because the
+      // local filter ensures the UI is already in sync with the database.
     } catch (e) {
+      console.error("SaaS Delete Error:", e);
       toast({ title: "Delete Failed", variant: "destructive" });
     }
   };

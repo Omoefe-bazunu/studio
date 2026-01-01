@@ -48,7 +48,6 @@ import {
 
 /**
  * Sub-Component: ProjectCard
- * Features an optimized image carousel and accessibility labels.
  */
 const ProjectCard = ({
   project,
@@ -99,16 +98,15 @@ const ProjectCard = ({
           >
             <Image
               src={project.screenshots[idx]}
-              alt={`Screenshot ${idx + 1} of ${project.title}`} // FIX: Descriptive Alt Text
+              alt={`Screenshot ${idx + 1} of ${project.title}`}
               fill
-              priority={isPriority} // FIX: Performance (LCP) for top row
+              priority={isPriority}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
             />
           </motion.div>
         </AnimatePresence>
 
-        {/* Carousel Controls */}
         {project.screenshots.length > 1 && (
           <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 z-10 transition-opacity">
             <Button
@@ -116,7 +114,7 @@ const ProjectCard = ({
               variant="ghost"
               className="bg-white/20 backdrop-blur-md rounded-full text-white"
               onClick={() => paginate(-1)}
-              aria-label="Previous screenshot" // FIX: Accessibility Name
+              aria-label="Previous screenshot"
             >
               <ChevronLeft aria-hidden="true" />
             </Button>
@@ -125,14 +123,13 @@ const ProjectCard = ({
               variant="ghost"
               className="bg-white/20 backdrop-blur-md rounded-full text-white"
               onClick={() => paginate(1)}
-              aria-label="Next screenshot" // FIX: Accessibility Name
+              aria-label="Next screenshot"
             >
               <ChevronRight aria-hidden="true" />
             </Button>
           </div>
         )}
 
-        {/* Admin Controls */}
         {isAdmin && (
           <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
@@ -158,7 +155,6 @@ const ProjectCard = ({
       </div>
 
       <CardContent className="p-8 flex-grow">
-        {/* FIX: Explicit H3 for proper semantic hierarchy */}
         <CardTitle className="text-2xl font-bold text-slate-900 mb-2">
           <h3>{project.title}</h3>
         </CardTitle>
@@ -199,13 +195,9 @@ const ProjectCard = ({
   );
 };
 
-/**
- * Main Component: MobileAppDevelopmentService
- */
 export default function MobileAppDevelopmentService({
   initialProjectsData = [],
 }) {
-  // useVisitorTracker("Service: Mobile App Development");
   const { isAdmin, loadingAuth } = useAuth();
   const { toast } = useToast();
   const [projects, setProjects] = useState(initialProjectsData);
@@ -250,10 +242,16 @@ export default function MobileAppDevelopmentService({
 
   const handleDelete = async () => {
     try {
+      // 1. Delete from Firebase
       await deleteMobileProject(modal.del);
+
+      // 2. FIX: Optimistic Update - filter the local state so the project leaves immediately
+      setProjects((prev) => prev.filter((project) => project.id !== modal.del));
+
       toast({ title: "Deleted" });
       setModal((p) => ({ ...p, del: null }));
-      refresh();
+
+      // refresh(); // No longer strictly needed for immediate UI sync
     } catch (e) {
       toast({ title: "Error", variant: "destructive" });
     }
@@ -271,7 +269,6 @@ export default function MobileAppDevelopmentService({
 
   return (
     <div className="flex flex-col">
-      {/* 1. HERO SECTION  */}
       <section
         className="relative py-24 bg-[#0F0A1F] text-center overflow-hidden"
         aria-labelledby="mobile-hero-title"
@@ -321,7 +318,6 @@ export default function MobileAppDevelopmentService({
         </div>
       </section>
 
-      {/* 2. PORTFOLIO GRID SECTION */}
       <section
         className="py-24 bg-slate-50"
         aria-labelledby="mobile-portfolio-title"
@@ -363,7 +359,7 @@ export default function MobileAppDevelopmentService({
                   key={p.id}
                   project={p}
                   isAdmin={isAdmin}
-                  isPriority={index < 2} // FIX: Performance (LCP) for top row images
+                  isPriority={index < 2}
                   onEdit={(proj) =>
                     setModal((p) => ({ ...p, open: true, edit: proj }))
                   }
@@ -375,7 +371,6 @@ export default function MobileAppDevelopmentService({
         </div>
       </section>
 
-      {/* Admin Modals */}
       {isAdmin && (
         <ProjectForm
           isOpen={modal.open}

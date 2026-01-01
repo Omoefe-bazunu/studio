@@ -129,11 +129,25 @@ export default function MarketingAdsService({ initialProjectsData = [] }) {
 
   const confirmDelete = async () => {
     try {
+      // 1. Perform the deletion in Firestore
       await deleteMarketingAdProject(modal.del);
+
+      // 2. OPTIMISTIC UPDATE: Filter out the deleted asset from local state immediately
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== modal.del)
+      );
+
+      // 3. Reset the current index to avoid out-of-bounds errors in the slider
+      setCurrentIndex((prev) => (prev > 0 ? prev - 1 : 0));
+
       toast({ title: "Asset Removed" });
+
+      // 4. Close the alert dialog
       setModal((p) => ({ ...p, del: null }));
-      refresh();
+
+      // refresh(); // Optional: Re-fetching is no longer the primary way to update the UI
     } catch (e) {
+      console.error("Marketing Delete Error:", e);
       toast({ title: "Delete Failed", variant: "destructive" });
     }
   };
