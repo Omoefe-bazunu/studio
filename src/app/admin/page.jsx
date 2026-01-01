@@ -155,7 +155,7 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-6 max-w-7xl">
           {/* Changed default to 'analytics' to see your traffic first */}
           <Tabs defaultValue="analytics" className="w-full">
-            <TabsList className="bg-white border p-1 rounded-full mb-8 h-14 w-fit mx-auto md:mx-0 shadow-sm">
+            <TabsList className="bg-white h-fit border px-8 py-2 grid grid-cols-1 md:grid-cols-3 rounded-full mb-8 w-fit mx-auto md:mx-0 shadow-sm">
               {/* 2. Added Analytics Tab Trigger */}
               <TabsTrigger
                 value="analytics"
