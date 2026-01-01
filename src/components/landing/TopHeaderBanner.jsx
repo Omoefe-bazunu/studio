@@ -36,13 +36,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+// Add to your bannerSchema
 const bannerSchema = z.object({
   text: z.string().min(5).max(150),
   ctaText: z.string().min(3).max(25),
-  ctaLink: z.string().url(),
+  ctaLink: z.string().min(1),
   isActive: z.boolean(),
   backgroundColor: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i),
   textColor: z.string().regex(/^#([0-9a-f]{3}){1,2}$/i),
+  imageUrl: z.string().optional().nullable(), // Add this line
 });
 
 const DEFAULT_BANNER = {
@@ -52,6 +54,7 @@ const DEFAULT_BANNER = {
   isActive: true,
   backgroundColor: "#6B46C1",
   textColor: "#FFFFFF",
+  imageUrl: null,
 };
 
 const COLORS = [
@@ -96,15 +99,21 @@ export default function TopHeaderBanner() {
     loadData();
   }, [loadData]);
 
+  // FIX: The auto-hide timer now waits if the settings dialog is open
   useEffect(() => {
     let timer;
-    if (isVisible) {
-      timer = setTimeout(() => setIsVisible(false), 10000);
+
+    // Only start the countdown if the banner is visible AND the editor is closed
+    if (isVisible && !open) {
+      timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 10000); // 10 seconds
     }
+
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [isVisible]);
+  }, [isVisible, open]); // Added 'open' as a dependency
 
   const onDismiss = () => {
     setIsVisible(false);
@@ -113,12 +122,27 @@ export default function TopHeaderBanner() {
 
   const onSubmit = async (data) => {
     try {
-      await setTopHeaderBannerContent(data);
-      toast({ title: "Banner Updated" });
-      loadData();
+      const payload = {
+        ...data,
+        imageUrl: data.imageUrl || null,
+      };
+
+      await setTopHeaderBannerContent(payload);
+
+      // 1. Manually update the local state immediately
+      setBanner(payload);
+
+      // 2. Reset the form with the new data
+      form.reset(payload);
+
+      toast({ title: "Banner Updated successfully!" });
       setOpen(false);
+
+      // 3. Optional: add a slight delay before reloading from server
+      setTimeout(() => loadData(), 500);
     } catch (e) {
-      toast({ title: "Error", variant: "destructive" });
+      console.error("Save Error:", e);
+      toast({ title: "Save Failed", variant: "destructive" });
     }
   };
 
