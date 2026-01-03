@@ -1,15 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  Plus,
-  Edit2,
-  Trash2,
-  Check,
-  Loader2,
-  Maximize2,
-} from "lucide-react";
+import { X, Plus, Edit2, Trash2, Check, Loader2 } from "lucide-react";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
@@ -24,9 +16,20 @@ import { db, auth } from "@/lib/firebase/firebase";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 const ADMIN_EMAIL = "raniem57@gmail.com";
+
+// FIX: Added a curated list of high-end gradients to choose from
+const PRESET_GRADIENTS = [
+  "from-purple-600 to-pink-600",
+  "from-blue-600 to-cyan-500",
+  "from-emerald-500 to-teal-700",
+  "from-orange-500 to-red-600",
+  "from-indigo-600 to-purple-800",
+  "from-slate-700 to-slate-900",
+  "from-rose-500 to-orange-400",
+  "from-cyan-500 to-blue-500",
+];
 
 export default function PricingPage() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -37,7 +40,6 @@ export default function PricingPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 1. Admin Auth Check
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAdmin(user?.email === ADMIN_EMAIL);
@@ -45,7 +47,6 @@ export default function PricingPage() {
     return () => unsubscribe();
   }, []);
 
-  // 2. Load Plans
   useEffect(() => {
     loadPlans();
   }, []);
@@ -64,7 +65,7 @@ export default function PricingPage() {
   };
 
   const handleWhatsApp = (plan) => {
-    const message = `Hi! I'm interested in the *${plan.name}* package (${plan.price}).`;
+    const message = `Hi! I'm interested in the *${plan.name}* package (${plan.price} / ${plan.priceUSD}).`;
     window.open(
       `https://wa.me/2349043970401?text=${encodeURIComponent(message)}`,
       "_blank"
@@ -173,70 +174,76 @@ export default function PricingPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className="bg-white border-none shadow-xl flex flex-col rounded-lg overflow-hidden transition-all hover:translate-y-[-5px]"
-              >
+            {plans.map((plan) => {
+              const planColor = plan.color || "from-purple-600 to-blue-600";
+
+              return (
                 <div
-                  className={`h-2 bg-gradient-to-r ${
-                    plan.color || "from-purple-600 to-blue-600"
-                  }`}
-                />
-                <div className="p-8 flex-grow">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                    {plan.name}
-                  </h3>
-                  <div className="text-3xl font-black text-[#6B46C1] mb-6">
-                    {plan.price}
-                  </div>
-                  <ul className="space-y-4">
-                    {plan.features?.slice(0, 5).map((f, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-3 text-slate-600 text-sm"
-                      >
-                        <Check
-                          size={18}
-                          className="text-green-500 flex-shrink-0"
-                        />{" "}
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="p-8 pt-0 flex flex-col gap-4">
-                  <Button
-                    onClick={() => setSelectedPlan(plan)}
-                    className={`w-full bg-gradient-to-r ${plan.color} rounded-full font-bold`}
-                  >
-                    View Details
-                  </Button>
-                  {isAdmin && (
-                    <div className="flex gap-2 pt-4 border-t border-slate-100">
-                      <Button
-                        variant="outline"
-                        className="flex-1 rounded-full"
-                        onClick={() => setEditingPlan(plan)}
-                      >
-                        <Edit2 size={16} />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        className="flex-1 rounded-full"
-                        onClick={() => deletePlan(plan.id)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                  key={plan.id}
+                  className="bg-white border-none shadow-xl flex flex-col rounded-lg overflow-hidden transition-all hover:translate-y-[-5px]"
+                >
+                  <div className={`h-2 bg-gradient-to-r ${planColor}`} />
+                  <div className="p-8 flex-grow">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                      {plan.name}
+                    </h3>
+                    <div className="flex items-baseline gap-2 mb-6">
+                      <span className="text-3xl font-black text-[#6B46C1]">
+                        {plan.price}
+                      </span>
+                      {plan.priceUSD && (
+                        <span className="text-lg font-semibold text-slate-400">
+                          / ${plan.priceUSD}+
+                        </span>
+                      )}
                     </div>
-                  )}
+                    <ul className="space-y-4">
+                      {plan.features?.slice(0, 5).map((f, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-3 text-slate-600 text-sm"
+                        >
+                          <Check
+                            size={18}
+                            className="text-green-500 flex-shrink-0"
+                          />{" "}
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-8 pt-0 flex flex-col gap-4">
+                    <Button
+                      onClick={() => setSelectedPlan(plan)}
+                      className={`w-full bg-gradient-to-r ${planColor} rounded-full font-bold text-white shadow-md`}
+                    >
+                      View Details
+                    </Button>
+                    {isAdmin && (
+                      <div className="flex gap-2 pt-4 border-t border-slate-100">
+                        <Button
+                          variant="outline"
+                          className="flex-1 rounded-full"
+                          onClick={() => setEditingPlan(plan)}
+                        >
+                          <Edit2 size={16} />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="flex-1 rounded-full"
+                          onClick={() => deletePlan(plan.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* --- MODALS --- */}
         {selectedPlan && !editingPlan && (
           <PlanModal
             plan={selectedPlan}
@@ -261,19 +268,20 @@ export default function PricingPage() {
   );
 }
 
-/**
- * Component: Plan Details Modal
- */
 function PlanModal({ plan, onClose, onWhatsApp }) {
+  const planColor = plan.color || "from-purple-600 to-blue-600";
+
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-2xl rounded-none shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
         <div
-          className={`p-8 bg-gradient-to-r ${plan.color} text-white flex justify-between items-center`}
+          className={`p-8 bg-gradient-to-r ${planColor} text-white flex justify-between items-center`}
         >
           <div>
             <h2 className="text-3xl font-bold">{plan.name}</h2>
-            <p className="text-xl opacity-90">{plan.price}</p>
+            <p className="text-xl opacity-90">
+              {plan.price} (${plan.priceUSD}+)
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -297,7 +305,7 @@ function PlanModal({ plan, onClose, onWhatsApp }) {
           </div>
           <Button
             onClick={() => onWhatsApp(plan)}
-            className={`w-full h-14 text-lg font-bold rounded-full bg-gradient-to-r ${plan.color}`}
+            className={`w-full h-14 text-lg font-bold rounded-full bg-gradient-to-r ${planColor} text-white`}
           >
             ORDER THIS PACKAGE
           </Button>
@@ -307,20 +315,15 @@ function PlanModal({ plan, onClose, onWhatsApp }) {
   );
 }
 
-/**
- * Component: Edit/Add Plan Modal
- */
 function EditPlanModal({ plan, onClose, onSave }) {
-  const [formData, setFormData] = useState(
-    plan || {
-      name: "",
-      price: "",
-      color: "from-purple-600 to-pink-600",
-      features: [""],
-      perfectFor: [""],
-      renewals: [""],
-    }
-  );
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    priceUSD: "",
+    color: "from-purple-600 to-pink-600",
+    features: [""],
+    ...plan,
+  });
 
   const handleArrayChange = (field, index, val) => {
     const arr = [...formData[field]];
@@ -340,7 +343,7 @@ function EditPlanModal({ plan, onClose, onSave }) {
           </button>
         </div>
         <div className="p-6 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-xs font-bold uppercase text-slate-400">
                 Plan Name
@@ -350,26 +353,65 @@ function EditPlanModal({ plan, onClose, onSave }) {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full p-3 border rounded-none"
+                className="w-full p-3 border"
               />
             </div>
             <div>
               <label className="text-xs font-bold uppercase text-slate-400">
-                Price (e.g. ₦150k)
+                Price (Naira)
               </label>
               <input
                 value={formData.price}
+                placeholder="₦150k"
                 onChange={(e) =>
                   setFormData({ ...formData, price: e.target.value })
                 }
-                className="w-full p-3 border rounded-none"
+                className="w-full p-3 border"
               />
+            </div>
+            <div>
+              <label className="text-xs font-bold uppercase text-slate-400">
+                Price (USD)
+              </label>
+              <input
+                value={formData.priceUSD}
+                placeholder="$150"
+                onChange={(e) =>
+                  setFormData({ ...formData, priceUSD: e.target.value })
+                }
+                className="w-full p-3 border"
+              />
+            </div>
+          </div>
+
+          {/* FIX: Replaced text input with a Color Picker Tool */}
+          <div>
+            <label className="text-xs font-bold uppercase text-slate-400 mb-3 block">
+              Package Color Theme
+            </label>
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+              {PRESET_GRADIENTS.map((grad) => (
+                <button
+                  key={grad}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, color: grad })}
+                  className={`h-10 w-full rounded-lg bg-gradient-to-r ${grad} border-2 flex items-center justify-center transition-all ${
+                    formData.color === grad
+                      ? "border-slate-900 scale-110 shadow-lg"
+                      : "border-transparent opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  {formData.color === grad && (
+                    <Check size={16} className="text-white" />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
           <div>
             <label className="text-xs font-bold uppercase text-slate-400">
-              Features (one per line)
+              Features
             </label>
             {formData.features.map((f, i) => (
               <div key={i} className="flex gap-2 mb-2">
@@ -378,7 +420,7 @@ function EditPlanModal({ plan, onClose, onSave }) {
                   onChange={(e) =>
                     handleArrayChange("features", i, e.target.value)
                   }
-                  className="flex-1 p-2 border rounded-none"
+                  className="flex-1 p-2 border"
                 />
                 <button
                   onClick={() =>
@@ -410,7 +452,7 @@ function EditPlanModal({ plan, onClose, onSave }) {
 
           <Button
             onClick={() => onSave(formData)}
-            className="w-full bg-[#6B46C1] rounded-full h-12 font-bold"
+            className="w-full bg-[#6B46C1] rounded-full h-12 font-bold text-white"
           >
             SAVE PRICING PLAN
           </Button>
