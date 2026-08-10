@@ -1,0 +1,492 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { X, Plus, Edit2, Trash2, Check, Loader2 } from "lucide-react";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db, auth } from "@/lib/firebase/firebase";
+import { Button } from "@/components/ui/button";
+
+const ADMIN_EMAIL = "raniem57@gmail.com";
+
+const PRESET_GRADIENTS = [
+  "from-purple-600 to-pink-600",
+  "from-blue-600 to-cyan-500",
+  "from-emerald-500 to-teal-700",
+  "from-orange-500 to-red-600",
+  "from-indigo-600 to-purple-800",
+  "from-slate-700 to-slate-900",
+  "from-rose-500 to-orange-400",
+  "from-cyan-500 to-blue-500",
+];
+
+const CATEGORIES = ["Website", "Apps", "Ads", "AI Automation"];
+
+export default function PricingPage() {
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [plans, setPlans] = useState([]);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [editingPlan, setEditingPlan] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("Website");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAdmin(user?.email === ADMIN_EMAIL);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    loadPlans();
+  }, []);
+
+  const loadPlans = async () => {
+    try {
+      setLoading(true);
+      const snapshot = await getDocs(collection(db, "pricingPlans"));
+      const plansList = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setPlans(plansList);
+    } catch (err) {
+      console.error("Error loading plans:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWhatsApp = (plan) => {
+    const message = `Hi! I'm interested in the *${plan.name}* package (${plan.price} / ${plan.priceUSD}).`;
+    window.open(
+      `https://wa.me/2349043970401?text=${encodeURIComponent(message)}`,
+      "_blank",
+    );
+  };
+
+  const savePlan = async (planData) => {
+    try {
+      const data = { ...planData, updatedAt: serverTimestamp() };
+      if (editingPlan?.id) {
+        await updateDoc(doc(db, "pricingPlans", editingPlan.id), data);
+      } else {
+        await addDoc(collection(db, "pricingPlans"), data);
+      }
+      await loadPlans();
+      setEditingPlan(null);
+      setShowAddModal(false);
+    } catch (err) {
+      alert("Error saving plan");
+    }
+  };
+
+  const deletePlan = async (planId) => {
+    if (!window.confirm("Are you sure you want to delete this pricing plan?"))
+      return;
+    try {
+      await deleteDoc(doc(db, "pricingPlans", planId));
+      await loadPlans();
+    } catch (err) {
+      alert("Error deleting plan");
+    }
+  };
+
+  const filteredPlans = plans.filter(
+    (plan) => plan.category === activeCategory,
+  );
+
+  if (showWelcome) {
+    return (
+      <div className="min-h-screen py-16 bg-[#0F0A1F] relative overflow-hidden flex flex-col items-center justify-center text-white px-6">
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, #6B46C1 0%, transparent 75%)`,
+          }}
+        />
+        <div className="relative z-10 text-center space-y-8 max-w-4xl">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter">
+            SERVICE <span className="text-[#FF8C38]">PRICING.</span>
+          </h1>
+          <div className="relative inline-block">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/high-481fd.firebasestorage.app/o/general%2FPRICING.jpeg?alt=media&token=5ea37582-cb66-47a5-b104-4c9efd5179aa"
+              alt="Pricing"
+              className="relative rounded-lg w-72 h-72 object-cover border border-white/10"
+            />
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-4xl md:text-6xl font-black text-[#FF8C38]">
+              HIGH-ER ENTERPRISES
+            </h2>
+            <p className="text-xl text-slate-400">
+              Check out Our Pricing for Our Services.
+            </p>
+          </div>
+          <Button
+            onClick={() => setShowWelcome(false)}
+            className="bg-[#6B46C1] hover:bg-[#5a3aaa] rounded-full px-12 h-16 text-lg font-bold transition-transform hover:scale-105"
+          >
+            View Pricing
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading)
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <Loader2 className="animate-spin text-foreground w-12 h-12" />
+      </div>
+    );
+
+  return (
+    <div className="min-h-screen bg-background pb-24 pt-12">
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-2">
+              Pricing Plans
+            </h1>
+            <p className="text-muted-foreground">
+              Our prices are competitive and transparent. Choose the plan that
+              best suits your needs and budget. For custom solutions, feel free
+              to contact us!
+            </p>
+          </div>
+          {isAdmin && (
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="bg-[#FF8C38] hover:bg-[#e67e32] rounded-full px-8 h-12"
+            >
+              <Plus className="mr-2 w-5 h-5" /> Add Package
+            </Button>
+          )}
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex flex-wrap gap-3 mb-10">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-6 py-3 rounded-full font-semibold transition-all ${
+                activeCategory === cat
+                  ? "bg-[#FF8C38] text-white shadow-md"
+                  : "bg-card border border-border text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Plans Grid (filtered by category) */}
+        {filteredPlans.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground">
+            No packages in this category yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {filteredPlans.map((plan) => {
+              const planColor = plan.color || "from-purple-600 to-blue-600";
+
+              return (
+                <div
+                  key={plan.id}
+                  className="bg-card border border-border shadow-xl flex flex-col rounded-lg overflow-hidden transition-all hover:translate-y-[-5px]"
+                >
+                  <div className={`h-2 bg-gradient-to-r ${planColor}`} />
+                  <div className="p-8 flex-grow">
+                    <h3 className="text-2xl font-bold text-card-foreground mb-2">
+                      {plan.name}
+                    </h3>
+                    <div className="flex items-baseline gap-2 mb-6">
+                      <span className="text-3xl font-black text-primary">
+                        {plan.price}
+                      </span>
+                      {plan.priceUSD && (
+                        <span className="text-lg font-semibold text-muted-foreground">
+                          / ${plan.priceUSD}+
+                        </span>
+                      )}
+                    </div>
+                    <ul className="space-y-4">
+                      {plan.features?.slice(0, 5).map((f, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-3 text-muted-foreground text-sm"
+                        >
+                          <Check
+                            size={18}
+                            className="text-green-500 flex-shrink-0"
+                          />{" "}
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-8 pt-0 flex flex-col gap-4">
+                    <Button
+                      onClick={() => setSelectedPlan(plan)}
+                      className={`w-full bg-gradient-to-r ${planColor} rounded-full font-bold text-white shadow-md`}
+                    >
+                      View Details
+                    </Button>
+                    {isAdmin && (
+                      <div className="flex gap-2 pt-4 border-t border-border">
+                        <Button
+                          variant="outline"
+                          className="flex-1 rounded-full"
+                          onClick={() => setEditingPlan(plan)}
+                        >
+                          <Edit2 size={16} />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="flex-1 rounded-full"
+                          onClick={() => deletePlan(plan.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {selectedPlan && !editingPlan && (
+        <PlanModal
+          plan={selectedPlan}
+          onClose={() => setSelectedPlan(null)}
+          onWhatsApp={handleWhatsApp}
+        />
+      )}
+
+      {(editingPlan || showAddModal) && (
+        <EditPlanModal
+          plan={editingPlan}
+          onClose={() => {
+            setEditingPlan(null);
+            setShowAddModal(false);
+          }}
+          onSave={savePlan}
+        />
+      )}
+    </div>
+  );
+}
+
+function PlanModal({ plan, onClose, onWhatsApp }) {
+  const planColor = plan.color || "from-purple-600 to-blue-600";
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-card w-full max-w-2xl rounded-none shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div
+          className={`p-8 bg-gradient-to-r ${planColor} text-white flex justify-between items-center`}
+        >
+          <div>
+            <h2 className="text-3xl font-bold">{plan.name}</h2>
+            <p className="text-xl opacity-90">
+              {plan.price} (${plan.priceUSD}+)
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-white/20 rounded-full transition-colors"
+          >
+            <X size={28} />
+          </button>
+        </div>
+        <div className="p-8 space-y-8">
+          <div>
+            <h3 className="font-bold text-primary uppercase tracking-widest text-sm mb-4">
+              Core Features
+            </h3>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {plan.features?.map((f, i) => (
+                <li
+                  key={i}
+                  className="flex items-center gap-2 text-muted-foreground"
+                >
+                  <Check size={18} className="text-green-500" /> {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <Button
+            onClick={() => onWhatsApp(plan)}
+            className={`w-full h-14 text-lg font-bold rounded-full bg-gradient-to-r ${planColor} text-white`}
+          >
+            ORDER THIS PACKAGE
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditPlanModal({ plan, onClose, onSave }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    priceUSD: "",
+    category: "Website", // default
+    color: "from-purple-600 to-pink-600",
+    features: [""],
+    ...plan,
+  });
+
+  const handleArrayChange = (field, index, val) => {
+    const arr = [...formData[field]];
+    arr[index] = val;
+    setFormData({ ...formData, [field]: arr });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+      <div className="bg-card w-full max-w-2xl rounded-none shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-border flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-card-foreground">
+            {plan ? "Edit Plan" : "Add New Plan"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        <div className="p-6 space-y-6">
+          {/* Category Selector */}
+          <div>
+            <label className="text-xs font-bold uppercase text-muted-foreground mb-2 block">
+              Category
+            </label>
+            <select
+              value={formData.category || "Website"}
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value })
+              }
+              className="w-full p-3 border border-input bg-background text-foreground rounded focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: "Plan Name", key: "name", placeholder: "" },
+              { label: "Price (Naira)", key: "price", placeholder: "₦3,500,000" },
+              { label: "Price (USD)", key: "priceUSD", placeholder: "2500" },
+            ].map(({ label, key, placeholder }) => (
+              <div key={key}>
+                <label className="text-xs font-bold uppercase text-muted-foreground">
+                  {label}
+                </label>
+                <input
+                  value={formData[key]}
+                  placeholder={placeholder}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [key]: e.target.value })
+                  }
+                  className="w-full p-3 border border-input bg-background text-foreground rounded focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-muted-foreground mb-3 block">
+              Package Color Theme
+            </label>
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+              {PRESET_GRADIENTS.map((grad) => (
+                <button
+                  key={grad}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, color: grad })}
+                  className={`h-10 w-full rounded-lg bg-gradient-to-r ${grad} border-2 flex items-center justify-center transition-all ${
+                    formData.color === grad
+                      ? "border-foreground scale-110 shadow-lg"
+                      : "border-transparent opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  {formData.color === grad && (
+                    <Check size={16} className="text-white" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold uppercase text-muted-foreground">
+              Features
+            </label>
+            {formData.features.map((f, i) => (
+              <div key={i} className="flex gap-2 mb-2">
+                <input
+                  value={f}
+                  onChange={(e) =>
+                    handleArrayChange("features", i, e.target.value)
+                  }
+                  className="flex-1 p-2 border border-input bg-background text-foreground rounded focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <button
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      features: formData.features.filter((_, idx) => idx !== i),
+                    })
+                  }
+                  className="text-destructive hover:opacity-80 transition-opacity"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  features: [...formData.features, ""],
+                })
+              }
+              className="rounded-full"
+            >
+              Add Feature
+            </Button>
+          </div>
+
+          <Button
+            onClick={() => onSave(formData)}
+            className="w-full bg-primary hover:bg-primary/90 rounded-full h-12 font-bold text-primary-foreground"
+          >
+            SAVE PRICING PLAN
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
