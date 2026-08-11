@@ -86,7 +86,6 @@ export default function JobApplicationCoursePage() {
       try {
         window.fbq("track", "Purchase", {
           value: Number(paidAmount) || 4999,
-          currency: "NGN",
           content_name: "Apply to Jobs Strategically",
           content_type: "product",
         });
@@ -150,7 +149,7 @@ export default function JobApplicationCoursePage() {
           if (typeof window !== "undefined" && window.fbq) {
             window.fbq("track", "Purchase", {
               value: Number(payment.amount) || Number(PRICING.current),
-              currency: "NGN",
+
               content_name: "Apply to Jobs Strategically",
               content_type: "product",
               content_ids: [payment.tx_ref],
