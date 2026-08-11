@@ -108,9 +108,11 @@ export default function JobApplicationCoursePage() {
         title: `${COURSE_DETAILS.title}`,
         description: "Strategic Job Application Course",
       },
+
       callback: async function (payment) {
         if (payment.status === "successful" || payment.status === "completed") {
           try {
+            // Save to Firebase
             await addDoc(collection(db, "jobapp_course_payments"), {
               name,
               email,
@@ -124,11 +126,19 @@ export default function JobApplicationCoursePage() {
           } catch (err) {
             console.error(err);
           }
-          trackPixelPurchase({
-            amount: payment.amount,
-            currency: payment.currency,
-            tx_ref: payment.tx_ref,
-          });
+
+          // ========== META PIXEL PURCHASE EVENT ==========
+          if (typeof window !== "undefined" && window.fbq) {
+            window.fbq("track", "Purchase", {
+              value: payment.amount, // e.g. 4999
+              currency: "NGN",
+              content_name: "Apply to Jobs Strategically",
+              content_type: "product",
+              content_ids: [payment.tx_ref],
+            });
+          }
+          // ===============================================
+
           setPaid(true);
           window.scrollTo({ top: 0, behavior: "smooth" });
         } else {
