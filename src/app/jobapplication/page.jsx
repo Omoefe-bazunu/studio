@@ -238,24 +238,24 @@ export default function JobApplicationCoursePage() {
             s={s}
           />
         </div>
-        <button
-          onClick={() => {
-            if (typeof window !== "undefined" && window.fbq) {
-              window.fbq("track", "Purchase", {
-                value: 4999,
-                currency: "NGN",
-                content_name: "Apply to Jobs Strategically",
-                content_type: "product",
-              });
-              alert("Purchase event sent!");
-            } else {
-              alert("Pixel not loaded");
-            }
-          }}
-          className="fixed bottom-6 right-6 z-50 bg-orange-500 text-white font-bold px-5 py-3 rounded-full shadow-lg"
-        >
-          Test Purchase Event
-        </button>
+        {/* <button
+  onClick={() => {
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq("track", "Purchase", {
+        value: 4999,
+        currency: "NGN",
+        content_name: "Apply to Jobs Strategically",
+        content_type: "product",
+      });
+      alert("Purchase event sent!");
+    } else {
+      alert("Pixel not loaded");
+    }
+  }}
+  className="fixed bottom-6 right-6 z-50 bg-orange-500 text-white font-bold px-5 py-3 rounded-full shadow-lg"
+>
+  Test Purchase Event
+</button> */}
       </main>
     </>
   );
