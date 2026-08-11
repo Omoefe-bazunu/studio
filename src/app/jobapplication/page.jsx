@@ -15,7 +15,6 @@ import { auth, db } from "@/lib/firebase/firebase";
 import { COLORS, FONTS, PRICING, COURSE_DETAILS } from "../../config/settings";
 import {
   generateTxRef,
-  trackPixelPurchase,
   getMidnightSecondsLeft,
   formatCountdown,
 } from "../../utils/helpers";
@@ -34,6 +33,7 @@ export default function JobApplicationCoursePage() {
   const [paid, setPaid] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [paidAmount, setPaidAmount] = useState(PRICING.current);
   const checkoutRef = useRef(null);
 
   const [secsLeft, setSecsLeft] = useState(null);
@@ -80,6 +80,19 @@ export default function JobApplicationCoursePage() {
     return () => document.body.removeChild(script);
   }, []);
 
+  // Fire Purchase event when success screen is shown
+  useEffect(() => {
+    if (paid && typeof window !== "undefined" && window.fbq) {
+      window.fbq("track", "Purchase", {
+        value: Number(paidAmount),
+        currency: "NGN",
+        content_name: "Apply to Jobs Strategically",
+        content_type: "product",
+      });
+      console.log("✅ Meta Purchase event fired from success screen");
+    }
+  }, [paid, paidAmount]);
+
   function scrollToCheckout() {
     checkoutRef.current?.scrollIntoView({ behavior: "smooth" });
     setTimeout(() => document.getElementById("fw-name")?.focus(), 500);
@@ -112,7 +125,6 @@ export default function JobApplicationCoursePage() {
       callback: async function (payment) {
         if (payment.status === "successful" || payment.status === "completed") {
           try {
-            // Save to Firebase
             await addDoc(collection(db, "jobapp_course_payments"), {
               name,
               email,
@@ -127,18 +139,18 @@ export default function JobApplicationCoursePage() {
             console.error(err);
           }
 
-          // ========== META PIXEL PURCHASE EVENT ==========
+          // Backup tracking in callback
           if (typeof window !== "undefined" && window.fbq) {
             window.fbq("track", "Purchase", {
-              value: payment.amount, // e.g. 4999
+              value: Number(payment.amount) || Number(PRICING.current),
               currency: "NGN",
               content_name: "Apply to Jobs Strategically",
               content_type: "product",
               content_ids: [payment.tx_ref],
             });
           }
-          // ===============================================
 
+          setPaidAmount(Number(payment.amount) || PRICING.current);
           setPaid(true);
           window.scrollTo({ top: 0, behavior: "smooth" });
         } else {
@@ -150,6 +162,7 @@ export default function JobApplicationCoursePage() {
     });
   }
 
+  // ========== SUCCESS SCREEN ==========
   if (paid) {
     return (
       <div
@@ -187,6 +200,7 @@ export default function JobApplicationCoursePage() {
     );
   }
 
+  // ========== MAIN PAGE ==========
   return (
     <>
       <Head>
@@ -203,7 +217,6 @@ export default function JobApplicationCoursePage() {
         className="bg-slate-50 min-h-screen"
       >
         {/* Urgency Bar */}
-        {/* Urgency Bar - Taller & more visible */}
         <div className="bg-red-600 text-white text-center py-3.5 px-4 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           <span className="font-semibold text-sm sm:text-base">
             ⏰ Special price ends in
@@ -215,6 +228,7 @@ export default function JobApplicationCoursePage() {
             — then ₦{PRICING.original.toLocaleString()} returns
           </span>
         </div>
+
         <Hero onCheckoutClick={scrollToCheckout} />
         <Problem />
         <Solution onCheckoutClick={scrollToCheckout} />
@@ -238,24 +252,6 @@ export default function JobApplicationCoursePage() {
             s={s}
           />
         </div>
-        {/* <button
-  onClick={() => {
-    if (typeof window !== "undefined" && window.fbq) {
-      window.fbq("track", "Purchase", {
-        value: 4999,
-        currency: "NGN",
-        content_name: "Apply to Jobs Strategically",
-        content_type: "product",
-      });
-      alert("Purchase event sent!");
-    } else {
-      alert("Pixel not loaded");
-    }
-  }}
-  className="fixed bottom-6 right-6 z-50 bg-orange-500 text-white font-bold px-5 py-3 rounded-full shadow-lg"
->
-  Test Purchase Event
-</button> */}
       </main>
     </>
   );
