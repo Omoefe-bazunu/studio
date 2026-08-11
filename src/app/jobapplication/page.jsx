@@ -83,13 +83,20 @@ export default function JobApplicationCoursePage() {
   // Fire Purchase event when success screen is shown
   useEffect(() => {
     if (paid && typeof window !== "undefined" && window.fbq) {
-      window.fbq("track", "Purchase", {
-        value: Number(paidAmount),
-        currency: "NGN",
-        content_name: "Apply to Jobs Strategically",
-        content_type: "product",
-      });
-      console.log("✅ Meta Purchase event fired from success screen");
+      try {
+        window.fbq("track", "Purchase", {
+          value: Number(paidAmount) || 4999,
+          currency: "NGN",
+          content_name: "Apply to Jobs Strategically",
+          content_type: "product",
+        });
+        console.log(
+          "✅ Purchase event sent with value:",
+          Number(paidAmount) || 4999,
+        );
+      } catch (err) {
+        console.error("Pixel error:", err);
+      }
     }
   }, [paid, paidAmount]);
 
