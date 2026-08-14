@@ -15,6 +15,7 @@ import {
   Phone,
   X,
   Play,
+  Maximize2,
 } from "lucide-react";
 import {
   getProductBySlug,
@@ -79,6 +80,34 @@ function SuccessModal({ open, onClose, customerEmail }) {
         >
           Done
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Image Fullscreen Modal ── */
+function ImageFullscreenModal({ open, onClose, imageUrl, alt }) {
+  if (!open || !imageUrl) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
+      <div
+        className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-20 bg-white/10 hover:bg-white/20 text-white border border-white/20 p-2.5 rounded-full transition-colors"
+        aria-label="Close fullscreen"
+      >
+        <X className="w-5 h-5" />
+      </button>
+      <div className="relative z-10 w-full h-full max-w-6xl max-h-[90vh] flex items-center justify-center">
+        <img
+          src={imageUrl}
+          alt={alt || "Product image"}
+          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+        />
       </div>
     </div>
   );
@@ -230,6 +259,7 @@ export default function ProductSlugPage() {
   const [successModal, setSuccessModal] = useState(false);
   const [successEmail, setSuccessEmail] = useState("");
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const [isImageFullscreen, setIsImageFullscreen] = useState(false);
 
   useEffect(() => {
     if (document.getElementById("flw-script")) return;
@@ -280,6 +310,13 @@ export default function ProductSlugPage() {
         customerEmail={successEmail}
       />
 
+      <ImageFullscreenModal
+        open={isImageFullscreen}
+        onClose={() => setIsImageFullscreen(false)}
+        imageUrl={product.imageUrl}
+        alt={product.name}
+      />
+
       {/* Back */}
       <div className="container mx-auto px-6 pt-8 w-full flex justify-center items-center">
         <Link
@@ -303,19 +340,35 @@ export default function ProductSlugPage() {
                     alt={product.name}
                     fill
                     priority
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.02] cursor-pointer"
                     sizes="(max-width: 1024px) 100vw, 60vw"
+                    onClick={() => setIsImageFullscreen(true)}
                   />
-                  {/* Video trigger — only shown if videoUrl exists */}
-                  {product.videoUrl && (
+                  {/* Controls overlay */}
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-10">
+                    {/* Video trigger — only shown if videoUrl exists */}
+                    {product.videoUrl ? (
+                      <button
+                        onClick={() => setIsPlayingVideo(true)}
+                        className="bg-background/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-border flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-lg"
+                      >
+                        <Play className="w-3 h-3 fill-current stroke-none" />
+                        Watch Demo
+                      </button>
+                    ) : (
+                      <div />
+                    )}
+
+                    {/* Fullscreen image button */}
                     <button
-                      onClick={() => setIsPlayingVideo(true)}
-                      className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-border flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-lg z-10"
+                      onClick={() => setIsImageFullscreen(true)}
+                      className="bg-background/90 backdrop-blur-md p-2.5 rounded-xl border border-border text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-lg"
+                      aria-label="View full image"
+                      title="View full image"
                     >
-                      <Play className="w-3 h-3 fill-current stroke-none" />
-                      Watch Demo
+                      <Maximize2 className="w-4 h-4" />
                     </button>
-                  )}
+                  </div>
                 </>
               ) : isPlayingVideo && product.videoUrl ? (
                 <div className="w-full h-full relative bg-black">
