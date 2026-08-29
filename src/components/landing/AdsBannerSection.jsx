@@ -9,7 +9,7 @@ export default function AdsBannerSection() {
   return (
     <div>
       {/* Container with Orange Background */}
-      <div className="relative w-full overflow-hidden bg-[#FF8C38] p-8 shadow-xl">
+      <div className="relative w-full hidden overflow-hidden bg-[#FF8C38] p-8 shadow-xl">
         {/* Decorative background glows - using dark purple to create depth on orange */}
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#0F0A1F]/10 blur-3xl" />
         <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-white/20 blur-2xl" />
