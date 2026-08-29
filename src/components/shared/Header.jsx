@@ -29,7 +29,7 @@ const Header = () => {
     { name: "About", href: "/about" },
     { name: "Solutions", href: "/services" },
     { name: "Shop", href: "/shop" },
-    { name: "Amazon", href: "/amazon-products" },
+    // { name: "Amazon", href: "/amazon-products" },
     { name: "Blog", href: "/blog" },
     // { name: "Amazon", href: "/amazon-products" },
     { name: "Pricing", href: "/pricingpackages" },
