@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function SportsBlogPage() {
   return (
     <section>
-      <div className="mb-6 text-center">
+      <div className="mb-6 mt-4 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl">
           Sports Insights & Highlights
         </h1>

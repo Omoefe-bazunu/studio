@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function CareerBlogPage() {
   return (
     <section>
-      <div className="mb-6 text-center">
+      <div className="my-6 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl">
           Career Development & Insights
         </h1>
