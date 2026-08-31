@@ -181,7 +181,7 @@ export default function AboutUs() {
             <Button
               asChild
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-white px-8 h-12 rounded-md font-medium"
+              className="bg-primary hover:bg-primary/90 text-white px-8 h-12 rounded-md font-medium w-full md:w-fit "
             >
               <Link href="/services">
                 Our solutions
@@ -190,7 +190,7 @@ export default function AboutUs() {
             </Button>
 
             <DiscussProjectCTA
-              colorClassName="border border-border text-foreground hover:bg-muted font-medium"
+              colorClassName="border border-border text-foreground hover:bg-muted font-medium w-full md:w-fit"
               className="rounded-md h-12 px-8"
             />
           </motion.div>

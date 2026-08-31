@@ -117,7 +117,7 @@ export default function Services() {
               <p className="text-sm text-muted-foreground">
                 Not sure which solution fits your business?
               </p>
-              <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 hover:text-white/90 border border-primary" />
+              <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 hover:text-white/90 border border-primary w-full md:w-fit" />
             </div>
           </div>
 

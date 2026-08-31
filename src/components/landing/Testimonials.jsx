@@ -167,9 +167,9 @@ export default function Testimonials() {
           </div>
         </div>
         {/* Section-closing CTA */}
-        <div className="mt-12 flex flex-col items-center text-center gap-4">
+        <div className="mt-12 flex flex-col items-center text-center gap-4 ">
           <p className="text-sm text-slate-400">Ready to start your project?</p>
-          <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 hover:text-white/90 border border-primary" />
+          <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 hover:text-white/90 border border-primary w-full md:w-fit" />
         </div>
       </div>
     </section>

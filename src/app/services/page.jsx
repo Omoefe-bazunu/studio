@@ -195,7 +195,7 @@ export default function ServicesPage() {
             className="flex items-center justify-center"
           >
             <DiscussProjectCTA
-              colorClassName="bg-primary hover:bg-primary/90 text-white font-medium"
+              colorClassName="bg-primary hover:bg-primary/90 text-white font-medium w-full md:w-fit"
               className="rounded-md h-11 px-7 shadow-md shadow-primary/20"
             />
           </motion.div>
