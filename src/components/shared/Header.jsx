@@ -46,7 +46,7 @@ const Header = () => {
           <Link href="/" className="flex items-center shrink-0">
             <span className="text-[14px] font-semibold tracking-wide uppercase text-white">
               High-Er{" "}
-              <span className="text-[#6B46C1] font-light">ENTERPRISES</span>
+              <span className="text-[#7B68F0] font-light">ENTERPRISES</span>
             </span>
           </Link>
 
