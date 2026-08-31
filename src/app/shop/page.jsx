@@ -156,7 +156,9 @@ export default function ShopPage() {
         <div className="relative z-10 container mx-auto px-6">
           <h1 className="font-sans text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
             Digital products &{" "}
-            <span className="font-accent italic text-[#FF8C38]">resources</span>
+            <span className="font-accent italic font-normal text-[#FF8C38]">
+              resources
+            </span>
           </h1>
           <p className="text-[#A79FC4] text-lg max-w-lg mx-auto leading-relaxed">
             Digital and physical products, at fair prices.
