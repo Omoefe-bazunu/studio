@@ -470,7 +470,7 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
                 id="portfolio-heading"
                 className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-foreground"
               >
-                Web Engineering Projects
+                Web & SaaS Projects
               </h2>
               <p className="text-muted-foreground text-sm md:text-base mt-1">
                 Here's a showcase of high-performance websites and SaaS we have
