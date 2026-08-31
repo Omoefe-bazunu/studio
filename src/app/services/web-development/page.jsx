@@ -9,12 +9,13 @@ import {
   ChevronRight,
   ExternalLink,
   CalendarDays,
-  MessageCircle,
   PlusCircle,
   Loader2,
   Edit3,
   Trash2,
   Laptop,
+  Tag,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +41,7 @@ import { useVisitorTracker } from "@/hooks/useVisitorTracker";
 import ProjectForm from "@/components/admin/ProjectForm";
 import DiscussProjectCTA from "@/components/DiscussProjectCTA";
 
-// ─── Firebase imports (all inlined here) ────────────────────────────────────
+// ─── Firebase imports ────────────────────────────────────────────────────────
 import { db, storage } from "@/lib/firebase/firebase";
 import {
   collection,
@@ -59,7 +60,6 @@ import { v4 as uuidv4 } from "uuid";
 
 // ─── Firebase helpers ────────────────────────────────────────────────────────
 
-/** Upload a single file to Firebase Storage and return its download URL. */
 const uploadFile = async (file, folderPath) => {
   const ext = file.name.split(".").pop();
   const storageRef = ref(storage, `${folderPath}/${uuidv4()}.${ext}`);
@@ -67,12 +67,6 @@ const uploadFile = async (file, folderPath) => {
   return getDownloadURL(snapshot.ref);
 };
 
-/**
- * For each screenshot entry ({ file, url, hint }):
- *  - if it has a File object  → upload and collect the new URL
- *  - if it already has a URL  → keep it as-is
- * Returns { urls: string[], hints: string[] }
- */
 const processScreenshots = async (screenshots = [], pathPrefix) => {
   const urls = [];
   const hints = [];
@@ -87,12 +81,12 @@ const processScreenshots = async (screenshots = [], pathPrefix) => {
   return { urls, hints };
 };
 
-/** Format a raw Firestore doc into a plain JS object the UI can consume. */
 const formatDoc = (d) => {
   const data = d.data();
   return {
     id: d.id,
     ...data,
+    category: data.category || "General Websites",
     deliveryDate: data.deliveryDate?.toDate().toISOString().split("T")[0] ?? "",
     sourceCodeUrl: data.sourceCodeUrl ?? "",
     createdAt:
@@ -104,13 +98,11 @@ const formatDoc = (d) => {
 
 const webProjectsRef = collection(db, "webProjects");
 
-/** Subscribe to the webProjects collection (real-time). Returns unsubscribe fn. */
 const subscribeToWebProjects = (callback) => {
   const q = query(webProjectsRef, orderBy("deliveryDate", "desc"));
   return onSnapshot(q, (snap) => callback(snap.docs.map(formatDoc)));
 };
 
-/** Add a new web project (uploads screenshots first). */
 const addWebProject = async (data) => {
   const { urls, hints } = await processScreenshots(
     data.screenshots,
@@ -121,7 +113,7 @@ const addWebProject = async (data) => {
     ...rest,
     screenshots: urls,
     imageHints: hints,
-    category: "Web Development",
+    category: data.category || "General Websites",
     sourceCodeUrl: data.sourceCodeUrl ?? "",
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
     createdAt: serverTimestamp(),
@@ -129,7 +121,6 @@ const addWebProject = async (data) => {
   });
 };
 
-/** Update an existing web project. */
 const updateWebProject = async (id, data) => {
   const { urls, hints } = await processScreenshots(data.screenshots, id);
   const { screenshots, ...rest } = data;
@@ -137,21 +128,25 @@ const updateWebProject = async (id, data) => {
     ...rest,
     screenshots: urls,
     imageHints: hints,
+    category: data.category || "General Websites",
     sourceCodeUrl: data.sourceCodeUrl ?? "",
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
     updatedAt: serverTimestamp(),
   });
 };
 
-/** Delete a web project by ID. */
 const deleteWebProject = (id) => deleteDoc(doc(db, "webProjects", id));
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const ITEMS_PER_PAGE = 4;
-const WHATSAPP_NUMBER = "2349043970401";
-const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-  "Hello High-ER Enterprises, I'm interested in building a high-performance website.",
-)}`;
+const DEFAULT_CATEGORIES = [
+  "ALL",
+  "General Websites",
+  "Web App & SaaS",
+  "E-Commerce",
+  "Landing Page",
+  "Custom Software",
+];
 
 // ─── ProjectCard ─────────────────────────────────────────────────────────────
 const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
@@ -170,7 +165,6 @@ const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
     [project.screenshots.length],
   );
 
-  // Auto-advance carousel every 5 s
   useEffect(() => {
     if (project.screenshots.length <= 1) return;
     const t = setTimeout(() => paginate(1), 5000);
@@ -178,9 +172,9 @@ const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
   }, [idx, paginate, project.screenshots.length]);
 
   return (
-    <Card className="group overflow-hidden border-none shadow-xl shadow-slate-200/50 flex flex-col bg-white dark:bg-[#0F0A1F] transition-all hover:-translate-y-1">
-      {/* Screenshot carousel */}
-      <CardHeader className="p-0 relative h-64 overflow-hidden bg-slate-100">
+    <Card className="group overflow-hidden border border-border/70 shadow-lg flex flex-col bg-card hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 rounded-2xl">
+      {/* Screenshot Carousel Header */}
+      <CardHeader className="p-0 relative h-64 overflow-hidden bg-muted/30">
         <AnimatePresence initial={false} custom={dir}>
           <motion.div
             key={idx}
@@ -210,38 +204,46 @@ const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Carousel nav arrows */}
+        {/* Category Badge Overlay */}
+        <div className="absolute top-4 left-4 z-20">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/90 backdrop-blur-md border border-border/80 text-foreground text-xs font-bold shadow-md">
+            <Tag className="w-3 h-3 text-primary" />
+            {project.category}
+          </span>
+        </div>
+
+        {/* Carousel Nav Controls */}
         {project.screenshots.length > 1 && (
           <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
             <Button
               size="icon"
               variant="ghost"
-              className="bg-white/20 backdrop-blur-md rounded-full text-white"
+              className="bg-background/80 backdrop-blur-md rounded-full text-foreground hover:bg-background"
               onClick={() => paginate(-1)}
             >
-              <ChevronLeft aria-hidden="true" />
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
-              className="bg-white/20 backdrop-blur-md rounded-full text-white"
+              className="bg-background/80 backdrop-blur-md rounded-full text-foreground hover:bg-background"
               onClick={() => paginate(1)}
             >
-              <ChevronRight aria-hidden="true" />
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         )}
 
-        {/* Admin controls */}
+        {/* Admin Controls */}
         {isAdmin && (
           <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 bg-white/90 rounded-full"
+              className="h-8 w-8 bg-background/90 backdrop-blur-md rounded-full border-border"
               onClick={() => onEdit(project)}
             >
-              <Edit3 className="h-4 w-4 text-[#6B46C1]" />
+              <Edit3 className="h-4 w-4 text-primary" />
             </Button>
             <Button
               variant="destructive"
@@ -255,24 +257,24 @@ const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
         )}
       </CardHeader>
 
-      {/* Card body */}
-      <CardContent className="p-8 flex-grow">
-        <CardTitle className="text-3xl font-black uppercase italic tracking-tighter text-slate-900 dark:text-white mb-4 leading-none">
+      {/* Card Body */}
+      <CardContent className="p-6 md:p-8 flex-grow">
+        <CardTitle className="text-2xl font-bold tracking-tight text-foreground mb-3">
           {project.title}
         </CardTitle>
 
-        <div className="relative mb-6">
+        <div className="relative mb-5">
           <motion.div
             animate={{ height: isExpanded ? "auto" : "72px" }}
             initial={false}
-            className="overflow-hidden text-slate-500 text-sm leading-relaxed"
+            className="overflow-hidden text-muted-foreground text-sm leading-relaxed"
           >
             <p>{project.description}</p>
           </motion.div>
           {project.description?.length > 120 && (
             <button
               onClick={() => setIsExpanded((v) => !v)}
-              className="text-[#6B46C1] text-xs font-black uppercase tracking-widest mt-2 hover:underline flex items-center gap-1"
+              className="text-primary text-xs font-bold uppercase tracking-wider mt-2 hover:underline flex items-center gap-1"
             >
               {isExpanded ? "Show Less" : "Read Full Description"}
               <motion.span animate={{ rotate: isExpanded ? 180 : 0 }}>
@@ -282,8 +284,8 @@ const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
           )}
         </div>
 
-        <div className="flex items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
-          <CalendarDays className="h-4 w-4 mr-2 text-[#FF8C38]" />
+        <div className="flex items-center text-xs font-semibold text-muted-foreground">
+          <CalendarDays className="h-4 w-4 mr-2 text-primary" />
           <span>
             Deployed:{" "}
             {new Date(project.deliveryDate).toLocaleDateString("en-US", {
@@ -294,24 +296,24 @@ const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
         </div>
       </CardContent>
 
-      {/* Card footer */}
-      <CardFooter className="p-8 pt-0 flex flex-col sm:flex-row gap-3">
+      {/* Card Footer */}
+      <CardFooter className="p-6 md:p-8 pt-0 flex flex-col sm:flex-row gap-3">
         <Button
           asChild
-          className="flex-1 h-16 rounded-none bg-[#0F0A1F] hover:bg-[#6B46C1] text-white dark:bg-[#FF8C38] font-black uppercase italic tracking-tighter shadow-2xl transition-all active:scale-95"
+          className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium text-xs uppercase tracking-wider shadow-md shadow-primary/20 transition-all active:scale-[0.98]"
         >
           <Link href={project.liveUrl || "#"} target="_blank">
-            VIEW LIVE SITE <ExternalLink className="ml-2 h-4 w-4" />
+            Live Site <ExternalLink className="ml-2 h-3.5 w-3.5" />
           </Link>
         </Button>
         {project.sourceCodeUrl && (
           <Button
             asChild
             variant="outline"
-            className="flex-1 h-16 rounded-none border-2 border-[#0F0A1F] text-[#0F0A1F] hover:bg-[#0F0A1F] hover:text-white font-black uppercase italic tracking-tighter shadow-xl transition-all active:scale-95"
+            className="flex-1 h-12 rounded-xl border-border text-foreground hover:bg-muted font-medium text-xs uppercase tracking-wider transition-all active:scale-[0.98]"
           >
             <Link href={project.sourceCodeUrl} target="_blank">
-              SOURCE CODE <Laptop className="ml-2 h-4 w-4" />
+              Source Code <Laptop className="ml-2 h-3.5 w-3.5" />
             </Link>
           </Button>
         )}
@@ -329,6 +331,7 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
 
   const [projects, setProjects] = useState(initialProjectsData);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -345,7 +348,29 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
     return unsubscribe;
   }, []);
 
-  // Add or update a project
+  // Compute Categories list dynamically from existing projects & defaults
+  const categoriesList = useMemo(() => {
+    const projectCategories = projects.map((p) => p.category).filter(Boolean);
+    const combined = Array.from(
+      new Set([...DEFAULT_CATEGORIES, ...projectCategories]),
+    );
+    return combined;
+  }, [projects]);
+
+  // Filter projects by category
+  const filteredProjects = useMemo(() => {
+    if (selectedCategory === "ALL") return projects;
+    return projects.filter(
+      (p) => p.category?.toLowerCase() === selectedCategory.toLowerCase(),
+    );
+  }, [projects, selectedCategory]);
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  };
+
+  // Add or update project
   const handleFormSubmit = async (data) => {
     setIsSubmitting(true);
     try {
@@ -365,7 +390,7 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
     }
   };
 
-  // Delete a project (optimistic UI update)
+  // Delete project
   const confirmDelete = async () => {
     try {
       await deleteWebProject(projectToDeleteId);
@@ -378,113 +403,139 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
     }
   };
 
-  const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
   const currentProjects = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return projects.slice(start, start + ITEMS_PER_PAGE);
-  }, [projects, currentPage]);
+    return filteredProjects.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProjects, currentPage]);
 
   if (loadingAuth) {
     return (
       <div
-        className="h-screen flex items-center justify-center bg-[#0F0A1F]"
+        className="h-screen flex items-center justify-center bg-white dark:bg-background"
         aria-busy="true"
       >
-        <Loader2 className="animate-spin text-white w-12 h-12" />
+        <Loader2 className="animate-spin text-primary w-10 h-10" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col bg-[#0F0A1F]">
-      {/* Hero */}
+    <div className="flex flex-col bg-white dark:bg-background text-foreground min-h-screen">
+      {/* Simplified High-Converting Hero Section */}
       <section
-        className="relative w-full py-16 bg-[#0F0A1F] overflow-hidden"
+        className="w-full pt-28 pb-12 bg-white dark:bg-background border-b border-border/60"
         aria-labelledby="hero-heading"
       >
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 50%, #6B46C1 0%, transparent 70%)",
-          }}
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/stardust.png')] opacity-10"
-          aria-hidden="true"
-        />
-
-        <div className="container relative z-10 mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 text-purple-200 text-xs mb-6">
-            <Laptop className="w-3.5 h-3.5 text-[#FF8C38]" aria-hidden="true" />
-            <span>Premium Web Engineering</span>
-          </div>
-
+        <div className="container mx-auto px-6 text-center">
           <h1
             id="hero-heading"
-            className="text-4xl md:text-6xl font-bold tracking-tight text-white leading-tight max-w-3xl mx-auto"
+            className="font-sans text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.15] max-w-3xl mx-auto"
           >
-            Websites built for{" "}
-            <span className="text-[#FF8C38]">Performance.</span>
+            Get a website that
+            <br />{" "}
+            <span className="font-accent italic font-normal text-[#FF8C38]">
+              grows your business.
+            </span>
           </h1>
 
-          <p className="mt-6 text-lg text-slate-400 max-w-xl mx-auto leading-relaxed">
-            High-performance web applications designed to convert leads to
-            paying customers, and position your business as an authority in your
-            industry.
+          <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            We build fast, modern websites designed to get you more clients,
+            boost your sales, and build trust with your audience.
           </p>
 
-          <div className="mt-10 flex justify-center">
+          <div className="mt-9 flex justify-center">
             <DiscussProjectCTA
-              label="Start Your Project"
-              colorClassName="bg-[#6B46C1] hover:bg-[#5a3aaa] text-white shadow-xl shadow-purple-500/20 hover:scale-105"
-              className="h-14 px-10 text-base font-bold"
+              label="Discuss your project"
+              colorClassName="bg-primary hover:bg-primary/90 text-white hover:text-white/90 border border-primary"
+              className="h-11 px-6 rounded-md font-medium"
             />
           </div>
         </div>
       </section>
 
-      {/* Portfolio grid */}
+      {/* Portfolio Grid Section */}
       <section
-        className="py-12 bg-slate-50 dark:bg-[#0F0A1F]"
+        className="py-16 bg-muted/20 "
         aria-labelledby="portfolio-heading"
       >
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 text-center md:text-left">
-            <div className="w-full">
+        <div className="container px-6 max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                <Layers className="w-4 h-4 text-primary" />
+                <span>Selected Works</span>
+              </div>
               <h2
                 id="portfolio-heading"
-                className="text-4xl font-black uppercase italic tracking-tighter text-slate-900 mb-4 leading-none"
+                className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-foreground"
               >
-                WEB PROJECTS
+                Web Engineering Projects
               </h2>
-              <p className="text-slate-500 text-lg">
-                A showcase of high-performance websites and SaaS delivered to
-                clients across different industries and geographical regions.
+              <p className="text-muted-foreground text-sm md:text-base mt-1">
+                Here's a showcase of high-performance websites and SaaS we have
+                delivered to clients across industries.
               </p>
             </div>
+
             {isAdmin && (
               <Button
                 onClick={() => {
                   setEditingProject(null);
                   setIsFormOpen(true);
                 }}
-                className="bg-[#FF8C38] hover:bg-[#e67e32] text-white rounded-full px-8"
+                className="bg-[#FF8C38] hover:bg-[#e67e32] text-white rounded-xl px-6 py-2.5 font-bold text-xs uppercase tracking-wider shadow-md shrink-0"
                 aria-label="Add a new web project"
               >
-                <PlusCircle className="mr-2 h-5 w-5" aria-hidden="true" /> Add
+                <PlusCircle className="mr-2 h-4 w-4" aria-hidden="true" /> Add
                 Project
               </Button>
             )}
           </div>
 
+          {/* Category Tabs Header */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none border-b border-border/60 mb-10">
+            {categoriesList.map((cat) => {
+              const isActive = selectedCategory === cat;
+              const count =
+                cat === "ALL"
+                  ? projects.length
+                  : projects.filter(
+                      (p) => p.category?.toLowerCase() === cat.toLowerCase(),
+                    ).length;
+
+              return (
+                <button
+                  key={cat}
+                  onClick={() => handleCategorySelect(cat)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
+                    isActive
+                      ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                      : "bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  <span>{cat}</span>
+                  <span
+                    className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Project Grid */}
           {loading ? (
             <div className="flex justify-center py-20" aria-busy="true">
-              <Loader2 className="animate-spin text-[#6B46C1] h-12 w-12" />
+              <Loader2 className="animate-spin text-primary h-10 w-10" />
             </div>
           ) : currentProjects.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {currentProjects.map((p, index) => (
                 <ProjectCard
                   key={p.id}
@@ -500,35 +551,39 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
-              <p className="text-slate-400">
-                Our portfolio is being updated with fresh case studies.
+            <div className="text-center py-20 bg-card rounded-2xl border border-dashed border-border">
+              <p className="text-muted-foreground text-sm font-medium">
+                No projects found under the &quot;{selectedCategory}&quot;
+                category.
               </p>
             </div>
           )}
 
-          {/* Pagination */}
+          {/* Pagination Nav */}
           {totalPages > 1 && (
             <nav
-              className="mt-16 flex justify-center items-center gap-6"
+              className="mt-14 flex justify-center items-center gap-4"
               aria-label="Portfolio pagination"
             >
               <Button
                 variant="outline"
-                className="rounded-full border-slate-200"
+                className="rounded-xl border-border text-xs font-bold uppercase tracking-wider"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 aria-label="Previous page"
               >
-                <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />{" "}
+                <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />{" "}
                 Previous
               </Button>
-              <span className="font-bold text-slate-400" aria-current="page">
+              <span
+                className="text-xs font-bold text-muted-foreground px-2"
+                aria-current="page"
+              >
                 Page {currentPage} of {totalPages}
               </span>
               <Button
                 variant="outline"
-                className="rounded-full border-slate-200"
+                className="rounded-xl border-border text-xs font-bold uppercase tracking-wider"
                 onClick={() =>
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
@@ -536,14 +591,14 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
                 aria-label="Next page"
               >
                 Next{" "}
-                <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
               </Button>
             </nav>
           )}
         </div>
       </section>
 
-      {/* Admin modals */}
+      {/* Admin Modals */}
       {isAdmin && (
         <ProjectForm
           isOpen={isFormOpen}
@@ -558,22 +613,21 @@ export default function WebDevelopmentService({ initialProjectsData = [] }) {
         open={!!projectToDeleteId}
         onOpenChange={() => setProjectToDeleteId(null)}
       >
-        <AlertDialogContent className="rounded-[2.5rem]">
+        <AlertDialogContent className="rounded-2xl border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the project record.
+              This action will permanently delete this project record from
+              Firestore.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-destructive text-white rounded-full"
+              className="bg-destructive text-white rounded-xl"
             >
-              Delete
+              Delete Project
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

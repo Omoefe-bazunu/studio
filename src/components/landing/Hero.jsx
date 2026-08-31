@@ -23,7 +23,7 @@ export default function Hero() {
     <section
       id="home"
       aria-label="Welcome section"
-      className="relative w-full pt-28 pb-20 md:pt-32 md:pb-24 bg-[#120A28] overflow-hidden"
+      className="relative w-full py-36 md:pt-32 md:pb-24 bg-[#120A28] overflow-hidden"
     >
       <style jsx>{`
         @keyframes hero-pulse {

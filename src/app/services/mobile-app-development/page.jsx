@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,16 +9,23 @@ import {
   ChevronRight,
   ExternalLink,
   CalendarDays,
-  MessageCircle,
   PlusCircle,
   Loader2,
   Edit3,
   Trash2,
-  Smartphone,
   Laptop,
+  Tag,
+  Layers,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +38,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useVisitorTracker } from "@/hooks/useVisitorTracker";
 import ProjectForm from "@/components/admin/ProjectForm";
 import DiscussProjectCTA from "@/components/DiscussProjectCTA";
 
@@ -53,7 +61,6 @@ import { v4 as uuidv4 } from "uuid";
 
 // ─── Firebase helpers ────────────────────────────────────────────────────────
 
-/** Upload a single file to Firebase Storage and return its download URL. */
 const uploadFile = async (file, folderPath) => {
   const ext = file.name.split(".").pop();
   const storageRef = ref(storage, `${folderPath}/${uuidv4()}.${ext}`);
@@ -61,11 +68,6 @@ const uploadFile = async (file, folderPath) => {
   return getDownloadURL(snapshot.ref);
 };
 
-/**
- * For each screenshot entry ({ file, url, hint }):
- *  - if it has a File object  → upload and collect the new URL
- *  - if it already has a URL  → keep it as-is
- */
 const processScreenshots = async (screenshots = [], pathPrefix) => {
   const urls = [];
   const hints = [];
@@ -75,28 +77,33 @@ const processScreenshots = async (screenshots = [], pathPrefix) => {
     } else if (ss.url) {
       urls.push(ss.url);
     }
-    hints.push(ss.hint ?? "");
+    hints.push(ss.hint || "");
   }
   return { urls, hints };
 };
 
-const mobileProjectsRef = collection(db, "mobileProjects");
-
-/** Subscribe to mobileProjects collection (real-time). Returns unsubscribe fn. */
-const subscribeToMobileProjects = (callback) => {
-  const q = query(mobileProjectsRef, orderBy("deliveryDate", "desc"));
-  return onSnapshot(q, (snap) => {
-    const projects = snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-      deliveryDate:
-        d.data().deliveryDate?.toDate().toISOString().split("T")[0] ?? "",
-    }));
-    callback(projects);
-  });
+const formatDoc = (d) => {
+  const data = d.data();
+  return {
+    id: d.id,
+    ...data,
+    category: data.category || "iOS & Android",
+    deliveryDate: data.deliveryDate?.toDate().toISOString().split("T")[0] ?? "",
+    sourceCodeUrl: data.sourceCodeUrl ?? "",
+    createdAt:
+      data.createdAt?.toDate().toISOString() ?? new Date(0).toISOString(),
+    updatedAt:
+      data.updatedAt?.toDate().toISOString() ?? new Date(0).toISOString(),
+  };
 };
 
-/** Add a new mobile project (uploads screenshots first). */
+const mobileProjectsRef = collection(db, "mobileProjects");
+
+const subscribeToMobileProjects = (callback) => {
+  const q = query(mobileProjectsRef, orderBy("deliveryDate", "desc"));
+  return onSnapshot(q, (snap) => callback(snap.docs.map(formatDoc)));
+};
+
 const addMobileProject = async (data) => {
   const { urls, hints } = await processScreenshots(
     data.screenshots,
@@ -107,7 +114,7 @@ const addMobileProject = async (data) => {
     ...rest,
     screenshots: urls,
     imageHints: hints,
-    category: "Mobile App Development",
+    category: data.category || "iOS & Android",
     sourceCodeUrl: data.sourceCodeUrl ?? "",
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
     createdAt: serverTimestamp(),
@@ -115,7 +122,6 @@ const addMobileProject = async (data) => {
   });
 };
 
-/** Update an existing mobile project. */
 const updateMobileProject = async (id, data) => {
   const { urls, hints } = await processScreenshots(data.screenshots, id);
   const { screenshots, ...rest } = data;
@@ -123,28 +129,28 @@ const updateMobileProject = async (id, data) => {
     ...rest,
     screenshots: urls,
     imageHints: hints,
+    category: data.category || "iOS & Android",
     sourceCodeUrl: data.sourceCodeUrl ?? "",
     deliveryDate: Timestamp.fromDate(new Date(data.deliveryDate)),
     updatedAt: serverTimestamp(),
   });
 };
 
-/** Delete a mobile project by ID. */
 const deleteMobileProject = (id) => deleteDoc(doc(db, "mobileProjects", id));
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-const WHATSAPP_LINK = `https://wa.me/2349043970401?text=${encodeURIComponent(
-  "Hello High-ER Enterprises, I want to develop a custom mobile application.",
-)}`;
+const ITEMS_PER_PAGE = 4;
+const DEFAULT_CATEGORIES = [
+  "ALL",
+  "Cross-Platform",
+  "Fintech & Banking",
+  "Health & Fitness",
+  "E-Commerce Apps",
+  "Custom Software",
+];
 
 // ─── ProjectCard ─────────────────────────────────────────────────────────────
-const ProjectCard = ({
-  project,
-  isAdmin,
-  isPriority = false,
-  onEdit,
-  onDelete,
-}) => {
+const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -160,17 +166,16 @@ const ProjectCard = ({
     [project.screenshots.length],
   );
 
-  // Auto-advance carousel every 5 s
   useEffect(() => {
-    if (project.screenshots?.length <= 1) return;
+    if (project.screenshots.length <= 1) return;
     const t = setTimeout(() => paginate(1), 5000);
     return () => clearTimeout(t);
-  }, [idx, paginate, project.screenshots]);
+  }, [idx, paginate, project.screenshots.length]);
 
   return (
-    <Card className="group overflow-hidden border-none shadow-xl flex flex-col bg-white dark:bg-[#0F0A1F] transition-all hover:-translate-y-1 max-w-[340px] w-full mx-auto">
-      {/* Screenshot frame — true mobile-screen aspect ratio, no cropping */}
-      <div className="relative aspect-[9/19.5] w-full overflow-hidden bg-[#0F0A1F] border-b border-slate-100">
+    <Card className="group overflow-hidden border border-border/70 shadow-lg flex flex-col bg-card hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 rounded-2xl">
+      {/* Screenshot Carousel Header */}
+      <CardHeader className="p-0 relative h-72 sm:h-80 overflow-hidden bg-muted/40 flex items-center justify-center">
         <AnimatePresence initial={false} custom={dir}>
           <motion.div
             key={idx}
@@ -184,135 +189,132 @@ const ProjectCard = ({
             animate="center"
             exit="exit"
             transition={{
-              x: { type: "spring", stiffness: 260, damping: 25 },
-              opacity: { duration: 0.4 },
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.3 },
             }}
-            className="absolute inset-0"
+            className="absolute inset-0 flex items-center justify-center p-2"
           >
             <Image
               src={project.screenshots[idx]}
-              alt={`${project.title} screenshot`}
+              alt={`Screenshot ${idx + 1} of ${project.title}`}
               fill
               priority={isPriority}
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 25vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-contain"
             />
           </motion.div>
         </AnimatePresence>
 
-        {/* Carousel nav */}
+        {/* Category Badge Overlay */}
+        <div className="absolute top-4 left-4 z-20">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/90 backdrop-blur-md border border-border/80 text-foreground text-xs font-bold shadow-md">
+            <Tag className="w-3 h-3 text-primary" />
+            {project.category}
+          </span>
+        </div>
+
+        {/* Carousel Nav Controls */}
         {project.screenshots.length > 1 && (
-          <div className="absolute inset-x-0 bottom-3 flex items-center justify-between px-3 z-10">
+          <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
             <Button
               size="icon"
               variant="ghost"
-              className="bg-[#0F0A1F]/50 backdrop-blur-xl hover:bg-[#6B46C1] rounded-full text-white h-8 w-8 border border-white/10 transition-all"
+              className="bg-background/80 backdrop-blur-md rounded-full text-foreground hover:bg-background"
               onClick={() => paginate(-1)}
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
-              className="bg-[#0F0A1F]/50 backdrop-blur-xl hover:bg-[#6B46C1] rounded-full text-white h-8 w-8 border border-white/10 transition-all"
+              className="bg-background/80 backdrop-blur-md rounded-full text-foreground hover:bg-background"
               onClick={() => paginate(1)}
             >
-              <ChevronRight size={16} />
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         )}
 
-        {/* Carousel dots */}
-        {project.screenshots.length > 1 && (
-          <div className="absolute top-3 inset-x-0 flex items-center justify-center gap-1.5 z-10">
-            {project.screenshots.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 rounded-full transition-all ${
-                  i === idx ? "w-4 bg-[#FF8C38]" : "w-1.5 bg-white/40"
-                }`}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Admin controls */}
+        {/* Admin Controls */}
         {isAdmin && (
-          <div className="absolute top-3 right-3 z-20 flex gap-2">
+          <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 bg-white/90 backdrop-blur-md rounded-lg shadow-lg"
+              className="h-8 w-8 bg-background/90 backdrop-blur-md rounded-full border-border"
               onClick={() => onEdit(project)}
             >
-              <Edit3 className="h-4 w-4 text-[#6B46C1]" />
+              <Edit3 className="h-4 w-4 text-primary" />
             </Button>
             <Button
               variant="destructive"
               size="icon"
-              className="h-8 w-8 rounded-lg shadow-lg"
+              className="h-8 w-8 rounded-full"
               onClick={() => onDelete(project.id)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         )}
-      </div>
+      </CardHeader>
 
-      {/* Card body */}
-      <CardContent className="p-5 flex-grow">
-        <CardTitle className="text-lg font-black uppercase italic tracking-tighter text-slate-900 dark:text-white mb-2 leading-tight">
+      {/* Card Body */}
+      <CardContent className="p-6 md:p-8 flex-grow">
+        <CardTitle className="text-2xl font-bold tracking-tight text-foreground mb-3">
           {project.title}
         </CardTitle>
 
-        <div className="relative mb-4">
+        <div className="relative mb-5">
           <motion.div
-            animate={{ height: isExpanded ? "auto" : "36px" }}
+            animate={{ height: isExpanded ? "auto" : "72px" }}
             initial={false}
-            className="overflow-hidden text-slate-500 text-xs font-medium leading-relaxed"
+            className="overflow-hidden text-muted-foreground text-sm leading-relaxed"
           >
             <p>{project.description}</p>
           </motion.div>
-          {project.description?.length > 60 && (
+          {project.description?.length > 120 && (
             <button
               onClick={() => setIsExpanded((v) => !v)}
-              className="text-[#6B46C1] text-[9px] font-black uppercase tracking-[0.15em] mt-2 flex items-center gap-1 hover:underline"
+              className="text-primary text-xs font-bold uppercase tracking-wider mt-2 hover:underline flex items-center gap-1"
             >
-              {isExpanded ? "Close Specs" : "View Full Case"}
-              <ChevronRight
-                size={10}
-                className={isExpanded ? "rotate-[270deg]" : "rotate-90"}
-              />
+              {isExpanded ? "Show Less" : "Read Full Description"}
+              <motion.span animate={{ rotate: isExpanded ? 180 : 0 }}>
+                <ChevronRight size={12} className="rotate-90" />
+              </motion.span>
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-2 bg-slate-50 w-fit px-3 py-1.5 rounded-lg border border-slate-100 dark:bg-[#0F0A1F] dark:border-[#FF8C38]/20">
-          <CalendarDays className="h-3.5 w-3.5 text-[#FF8C38]" />
-          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-            Deployed: {project.deliveryDate}
+        <div className="flex items-center text-xs font-semibold text-muted-foreground">
+          <CalendarDays className="h-4 w-4 mr-2 text-primary" />
+          <span>
+            Deployed:{" "}
+            {new Date(project.deliveryDate).toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
           </span>
         </div>
       </CardContent>
 
-      {/* Card footer */}
-      <CardFooter className="p-5 pt-0 flex flex-col gap-2">
+      {/* Card Footer */}
+      <CardFooter className="p-6 md:p-8 pt-0 flex flex-col sm:flex-row gap-3">
         <Button
           asChild
-          className="w-full h-11 rounded-none bg-[#0F0A1F] hover:bg-[#6B46C1] dark:bg-[#FF8C38] dark:hover:bg-[#FF8C38]/80 text-white text-xs font-black uppercase italic tracking-tighter shadow-lg transition-all active:scale-95"
+          className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium text-xs uppercase tracking-wider shadow-md shadow-primary/20 transition-all active:scale-[0.98]"
         >
           <Link href={project.liveUrl || "#"} target="_blank">
-            VIEW APP <ExternalLink className="ml-2 h-3.5 w-3.5" />
+            View App <ExternalLink className="ml-2 h-3.5 w-3.5" />
           </Link>
         </Button>
         {project.sourceCodeUrl && (
           <Button
             asChild
             variant="outline"
-            className="w-full h-11 rounded-none border-2 border-[#0F0A1F] text-[#0F0A1F] hover:bg-[#0F0A1F] hover:text-white text-xs font-black uppercase italic tracking-tighter shadow-md transition-all active:scale-95"
+            className="flex-1 h-12 rounded-xl border-border text-foreground hover:bg-muted font-medium text-xs uppercase tracking-wider transition-all active:scale-[0.98]"
           >
             <Link href={project.sourceCodeUrl} target="_blank">
-              SOURCE CODE <Laptop className="ml-2 h-3.5 w-3.5" />
+              Source Code <Laptop className="ml-2 h-3.5 w-3.5" />
             </Link>
           </Button>
         )}
@@ -322,193 +324,313 @@ const ProjectCard = ({
 };
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function MobileAppDevelopmentService() {
+export default function MobileAppDevelopmentService({
+  initialProjectsData = [],
+}) {
+  useVisitorTracker("Service: Mobile App Development");
+
   const { isAdmin, loadingAuth } = useAuth();
   const { toast } = useToast();
 
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(initialProjectsData);
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState({
-    open: false,
-    edit: null,
-    del: null,
-    sub: false,
-  });
+  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Real-time subscription — filter out docs still uploading (no screenshots yet)
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [projectToDeleteId, setProjectToDeleteId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Real-time subscription
   useEffect(() => {
-    const unsubscribe = subscribeToMobileProjects((data) => {
-      setProjects(data.filter((p) => p.screenshots?.length > 0));
+    const unsubscribe = subscribeToMobileProjects((updated) => {
+      setProjects(updated);
       setLoading(false);
     });
     return unsubscribe;
   }, []);
 
-  const handleForm = async (data) => {
-    setModal((p) => ({ ...p, sub: true }));
+  // Compute Categories list dynamically from existing projects & defaults
+  const categoriesList = useMemo(() => {
+    const projectCategories = projects.map((p) => p.category).filter(Boolean);
+    const combined = Array.from(
+      new Set([...DEFAULT_CATEGORIES, ...projectCategories]),
+    );
+    return combined;
+  }, [projects]);
+
+  // Filter projects by category
+  const filteredProjects = useMemo(() => {
+    if (selectedCategory === "ALL") return projects;
+    return projects.filter(
+      (p) => p.category?.toLowerCase() === selectedCategory.toLowerCase(),
+    );
+  }, [projects, selectedCategory]);
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  };
+
+  // Add or update project
+  const handleFormSubmit = async (data) => {
+    setIsSubmitting(true);
     try {
-      if (modal.edit) {
-        await updateMobileProject(modal.edit.id, data);
-        toast({ title: "Project Updated" });
+      if (editingProject) {
+        await updateMobileProject(editingProject.id, data);
+        toast({ title: "Project Updated!" });
       } else {
         await addMobileProject(data);
-        toast({ title: "Project Added Successfully" });
+        toast({ title: "Project Added!" });
       }
-      setModal((p) => ({ ...p, open: false, edit: null }));
-    } catch (e) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      setIsFormOpen(false);
+      setEditingProject(null);
+    } catch {
+      toast({ title: "Error Saving", variant: "destructive" });
     } finally {
-      setModal((p) => ({ ...p, sub: false }));
+      setIsSubmitting(false);
     }
   };
 
-  // Optimistic delete — real-time listener will re-sync if it fails
-  const handleDelete = async () => {
-    const targetId = modal.del;
-    setProjects((prev) => prev.filter((p) => p.id !== targetId));
-    setModal((p) => ({ ...p, del: null }));
+  // Delete project
+  const confirmDelete = async () => {
     try {
-      await deleteMobileProject(targetId);
+      await deleteMobileProject(projectToDeleteId);
+      setProjects((prev) => prev.filter((p) => p.id !== projectToDeleteId));
       toast({ title: "Deleted Successfully" });
     } catch {
-      toast({ title: "Error Deleting", variant: "destructive" });
+      toast({ title: "Delete Failed", variant: "destructive" });
+    } finally {
+      setProjectToDeleteId(null);
     }
   };
+
+  const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
+  const currentProjects = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProjects.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProjects, currentPage]);
 
   if (loadingAuth) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#0F0A1F]">
-        <Loader2 className="animate-spin text-white w-12 h-12" />
+      <div
+        className="h-screen flex items-center justify-center bg-white dark:bg-background"
+        aria-busy="true"
+      >
+        <Loader2 className="animate-spin text-primary w-10 h-10" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative py-16 bg-[#0F0A1F] text-center overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 50%, #6B46C1 0%, transparent 70%)",
-          }}
-          aria-hidden="true"
-        />
-        <div className="relative z-10 container mx-auto px-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 text-purple-200 text-xs mb-6">
-            <Smartphone
-              className="w-3.5 h-3.5 text-[#FF8C38]"
-              aria-hidden="true"
-            />
-            <span>Mobile Engineering</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6 max-w-4xl mx-auto">
-            Mobile Apps for <br />
-            <span className="text-[#FF8C38]">Growth & Scale.</span>
+    <div className="flex flex-col bg-white dark:bg-background text-foreground min-h-screen">
+      {/* Simplified High-Converting Hero Section */}
+      <section
+        className="w-full pt-28 pb-12 bg-white dark:bg-background border-b border-border/60"
+        aria-labelledby="hero-heading"
+      >
+        <div className="container mx-auto px-6 text-center">
+          <h1
+            id="hero-heading"
+            className="font-sans text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.15] max-w-3xl mx-auto"
+          >
+            Get a mobile app that
+            <br />{" "}
+            <span className="font-accent italic font-normal text-[#FF8C38]">
+              scales your reach.
+            </span>
           </h1>
-          <p className="mt-6 text-lg text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed">
-            Innovative iOS & Android solutions engineered to engage your
-            audience and scale your operations.
+
+          <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            We build fast, native and cross-platform mobile apps designed to
+            engage users, boost retention, and accelerate your business growth.
           </p>
-          <div className="mt-10 flex justify-center">
+
+          <div className="mt-9 flex justify-center">
             <DiscussProjectCTA
-              label="Start Your Project"
-              colorClassName="bg-[#6B46C1] hover:bg-[#5a3aaa] text-white shadow-xl shadow-purple-500/20 hover:scale-105"
-              className="h-14 px-10 text-base font-bold"
+              label="Discuss your project"
+              colorClassName="bg-primary hover:bg-primary/90 text-white hover:text-white/90 border border-primary"
+              className="h-11 px-6 rounded-md font-medium"
             />
           </div>
         </div>
       </section>
 
-      {/* Portfolio grid */}
+      {/* Portfolio Grid Section */}
       <section
-        className="py-12 bg-slate-50 dark:bg-[#0F0A1F]"
+        className="py-16 bg-muted/20"
         aria-labelledby="portfolio-heading"
       >
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 text-center md:text-left">
-            <div className="w-full">
-              <h2 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900 mb-4 leading-none">
-                MOBILE APP PROJECTS
+        <div className="container px-6 max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                <Layers className="w-4 h-4 text-primary" />
+                <span>Selected Works</span>
+              </div>
+              <h2
+                id="portfolio-heading"
+                className="font-sans text-3xl md:text-4xl font-extrabold tracking-tight text-foreground"
+              >
+                Mobile Engineering Projects
               </h2>
-              <p className="text-slate-500 text-lg">
-                A showcase of high-performance mobile apps delivered to clients
-                across different industries and geographical regions.
+              <p className="text-muted-foreground text-sm md:text-base mt-1">
+                Here&apos;s a showcase of high-performance iOS and Android
+                applications we have delivered to clients across industries.
               </p>
             </div>
+
             {isAdmin && (
               <Button
-                onClick={() =>
-                  setModal((p) => ({ ...p, open: true, edit: null }))
-                }
-                className="bg-[#FF8C38] hover:bg-[#e67e32] rounded-full px-8 shrink-0"
+                onClick={() => {
+                  setEditingProject(null);
+                  setIsFormOpen(true);
+                }}
+                className="bg-[#FF8C38] hover:bg-[#e67e32] text-white rounded-xl px-6 py-2.5 font-bold text-xs uppercase tracking-wider shadow-md shrink-0"
+                aria-label="Add a new mobile project"
               >
-                <PlusCircle className="mr-2 h-5 w-5" /> Add Project
+                <PlusCircle className="mr-2 h-4 w-4" aria-hidden="true" /> Add
+                Project
               </Button>
             )}
           </div>
 
+          {/* Category Tabs Header */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none border-b border-border/60 mb-10">
+            {categoriesList.map((cat) => {
+              const isActive = selectedCategory === cat;
+              const count =
+                cat === "ALL"
+                  ? projects.length
+                  : projects.filter(
+                      (p) => p.category?.toLowerCase() === cat.toLowerCase(),
+                    ).length;
+
+              return (
+                <button
+                  key={cat}
+                  onClick={() => handleCategorySelect(cat)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
+                    isActive
+                      ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                      : "bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  <span>{cat}</span>
+                  <span
+                    className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Project Grid */}
           {loading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="animate-spin text-[#6B46C1] h-12 w-12" />
+            <div className="flex justify-center py-20" aria-busy="true">
+              <Loader2 className="animate-spin text-primary h-10 w-10" />
             </div>
-          ) : projects.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {projects.map((p, index) => (
+          ) : currentProjects.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {currentProjects.map((p, index) => (
                 <ProjectCard
                   key={p.id}
                   project={p}
                   isAdmin={isAdmin}
-                  isPriority={index < 4}
-                  onEdit={(proj) =>
-                    setModal((p) => ({ ...p, open: true, edit: proj }))
-                  }
-                  onDelete={(id) => setModal((p) => ({ ...p, del: id }))}
+                  isPriority={index < 2}
+                  onEdit={(proj) => {
+                    setEditingProject(proj);
+                    setIsFormOpen(true);
+                  }}
+                  onDelete={setProjectToDeleteId}
                 />
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-200">
-              <p className="text-slate-400">
-                Our portfolio is being updated with fresh case studies.
+            <div className="text-center py-20 bg-card rounded-2xl border border-dashed border-border">
+              <p className="text-muted-foreground text-sm font-medium">
+                No projects found under the &quot;{selectedCategory}&quot;
+                category.
               </p>
             </div>
+          )}
+
+          {/* Pagination Nav */}
+          {totalPages > 1 && (
+            <nav
+              className="mt-14 flex justify-center items-center gap-4"
+              aria-label="Portfolio pagination"
+            >
+              <Button
+                variant="outline"
+                className="rounded-xl border-border text-xs font-bold uppercase tracking-wider"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />{" "}
+                Previous
+              </Button>
+              <span
+                className="text-xs font-bold text-muted-foreground px-2"
+                aria-current="page"
+              >
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                className="rounded-xl border-border text-xs font-bold uppercase tracking-wider"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                aria-label="Next page"
+              >
+                Next{" "}
+                <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
+              </Button>
+            </nav>
           )}
         </div>
       </section>
 
-      {/* Admin modals */}
+      {/* Admin Modals */}
       {isAdmin && (
         <ProjectForm
-          isOpen={modal.open}
-          onOpenChange={(v) => setModal((p) => ({ ...p, open: v }))}
-          onSubmit={handleForm}
-          isLoading={modal.sub}
-          initialData={modal.edit}
+          isOpen={isFormOpen}
+          onOpenChange={setIsFormOpen}
+          onSubmit={handleFormSubmit}
+          initialData={editingProject}
+          isLoading={isSubmitting}
         />
       )}
 
       <AlertDialog
-        open={!!modal.del}
-        onOpenChange={() => setModal((p) => ({ ...p, del: null }))}
+        open={!!projectToDeleteId}
+        onOpenChange={() => setProjectToDeleteId(null)}
       >
-        <AlertDialogContent className="rounded-[2.5rem]">
+        <AlertDialogContent className="rounded-2xl border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Project?</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone.
+              This action will permanently delete this mobile project record
+              from Firestore.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive hover:bg-red-700 rounded-full"
+              onClick={confirmDelete}
+              className="bg-destructive text-white rounded-xl"
             >
-              Delete
+              Delete Project
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

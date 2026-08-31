@@ -29,12 +29,42 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, PlusCircle, XCircle, FileUp } from "lucide-react";
+import {
+  CalendarIcon,
+  PlusCircle,
+  XCircle,
+  FileUp,
+  Loader2,
+  Tag,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import Image from "next/image";
 
 const MAX_SCREENSHOTS = 5;
+
+const PRESET_CATEGORIES = [
+  "General Websites",
+  "Web App & SaaS",
+  "E-Commerce",
+  "Landing Page",
+  "Custom Software",
+  "Paid Ads",
+  "Google Ads",
+  "Meta Ads",
+  "Social Media Ads",
+  "Lead Generation",
+  "Cross-Platform",
+  "Fintech & Banking",
+  "Health & Fitness",
+  "E-Commerce Apps",
+  "Custom Software",
+  "Workflow Automation",
+  "AI Chatbots & Agents",
+  "Document & Data AI",
+  "Sales & CRM Automation",
+  "Custom AI Systems",
+];
 
 const getFileName = (url) => {
   if (!url || typeof url !== "string") return "Existing Image";
@@ -63,6 +93,7 @@ const screenshotSchema = z
 
 const projectFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
+  category: z.string().min(2, "Category is required."),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters."),
@@ -87,6 +118,7 @@ export default function ProjectForm({
     if (initialData) {
       return {
         title: initialData.title || "",
+        category: initialData.category || "General Websites",
         description: initialData.description || "",
         deliveryDate: initialData.deliveryDate
           ? parseISO(initialData.deliveryDate)
@@ -104,6 +136,7 @@ export default function ProjectForm({
     }
     return {
       title: "",
+      category: "Web Development",
       description: "",
       deliveryDate: new Date(),
       liveUrl: "",
@@ -136,7 +169,6 @@ export default function ProjectForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      {/* Modal shell stays dark-branded — intentional */}
       <DialogContent className="w-[95vw] sm:max-w-[650px] p-4 sm:p-8 max-h-[92vh] overflow-y-auto rounded-3xl sm:rounded-[2rem] border-white/5 bg-[#1A142D] text-white">
         <DialogHeader className="mb-6">
           <DialogTitle className="text-2xl font-black uppercase italic tracking-tighter text-white">
@@ -144,14 +176,15 @@ export default function ProjectForm({
           </DialogTitle>
           <DialogDescription className="text-white/50 text-xs font-bold uppercase tracking-widest">
             {initialData
-              ? "Refine deployment details."
-              : "Launch a new product."}
+              ? "Refine project & deployment details."
+              : "Launch a new project into your portfolio."}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
+              {/* Title Field */}
               <FormField
                 control={form.control}
                 name="title"
@@ -163,6 +196,7 @@ export default function ProjectForm({
                     <FormControl>
                       <Input
                         {...field}
+                        placeholder="Project Title"
                         className="bg-white/5 border-white/10 rounded-xl h-12 text-white placeholder:text-white/20 focus:ring-[#6B46C1] focus-visible:ring-[#6B46C1]"
                       />
                     </FormControl>
@@ -171,6 +205,55 @@ export default function ProjectForm({
                 )}
               />
 
+              {/* Category Field with Preset Quick-Pills & Custom Input */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FF8C38] flex items-center gap-1.5">
+                      <Tag className="w-3 h-3" /> Category
+                    </FormLabel>
+                    <FormControl>
+                      <div className="space-y-2.5">
+                        <Input
+                          {...field}
+                          placeholder="Select or type custom category..."
+                          className="bg-white/5 border-white/10 rounded-xl h-12 text-white placeholder:text-white/20 focus:ring-[#6B46C1] focus-visible:ring-[#6B46C1]"
+                        />
+                        <div className="flex flex-wrap gap-1.5 pt-0.5">
+                          {PRESET_CATEGORIES.map((cat) => {
+                            const isSelected =
+                              field.value?.toLowerCase() === cat.toLowerCase();
+                            return (
+                              <button
+                                key={cat}
+                                type="button"
+                                onClick={() =>
+                                  form.setValue("category", cat, {
+                                    shouldValidate: true,
+                                  })
+                                }
+                                className={cn(
+                                  "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border",
+                                  isSelected
+                                    ? "bg-[#6B46C1] text-white border-[#6B46C1] shadow-md shadow-[#6B46C1]/30"
+                                    : "bg-white/5 text-white/50 border-white/10 hover:bg-white/10 hover:text-white",
+                                )}
+                              >
+                                {cat}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage className="text-[10px] text-red-400" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Description Summary Field */}
               <FormField
                 control={form.control}
                 name="description"
@@ -183,6 +266,7 @@ export default function ProjectForm({
                       <Textarea
                         {...field}
                         rows={3}
+                        placeholder="Detailed project overview..."
                         className="bg-white/5 border-white/10 rounded-xl text-white placeholder:text-white/20 focus:ring-[#6B46C1] focus-visible:ring-[#6B46C1]"
                       />
                     </FormControl>
@@ -192,6 +276,7 @@ export default function ProjectForm({
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Delivery Date */}
                 <FormField
                   control={form.control}
                   name="deliveryDate"
@@ -226,6 +311,7 @@ export default function ProjectForm({
                   )}
                 />
 
+                {/* Live URL */}
                 <FormField
                   control={form.control}
                   name="liveUrl"
@@ -246,6 +332,7 @@ export default function ProjectForm({
                   )}
                 />
 
+                {/* Source Code URL */}
                 <FormField
                   control={form.control}
                   name="sourceCodeUrl"
@@ -268,6 +355,7 @@ export default function ProjectForm({
               </div>
             </div>
 
+            {/* Screenshots & Assets */}
             <div className="pt-4 border-t border-white/5">
               <div className="flex justify-between items-center mb-4">
                 <FormLabel className="text-[11px] font-black uppercase tracking-[0.3em] text-[#FF8C38]">
@@ -358,6 +446,7 @@ export default function ProjectForm({
               </div>
             </div>
 
+            {/* Footer Buttons */}
             <DialogFooter className="gap-3 sm:gap-0 pt-6">
               <Button
                 type="button"
@@ -373,7 +462,7 @@ export default function ProjectForm({
                 className="bg-[#6B46C1] hover:bg-[#5a3aaa] rounded-none px-10 h-14 font-black uppercase italic tracking-widest shadow-xl text-white"
               >
                 {isLoading ? (
-                  <Loader2 className="animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : initialData ? (
                   "Push Updates"
                 ) : (
@@ -387,7 +476,3 @@ export default function ProjectForm({
     </Dialog>
   );
 }
-
-const Loader2 = ({ className }) => (
-  <span className={cn("animate-spin", className)}>⏳</span>
-);
