@@ -95,7 +95,7 @@ export default function Testimonials() {
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h3 className="font-sans text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
               Businesses Trust Us <br />
-              <span className="font-accent italic text-[#FF8C38]">
+              <span className="font-accent font-normal italic text-[#FF8C38]">
                 with Their Growth
               </span>
             </h3>
