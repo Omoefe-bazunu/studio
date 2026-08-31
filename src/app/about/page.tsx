@@ -75,14 +75,14 @@ export default function AboutUs() {
               <Button
                 asChild
                 size="lg"
-                className="bg-primary hover:bg-primary/90 text-white px-6 h-11 rounded-md font-medium"
+                className="bg-primary hover:bg-primary/90 text-white px-6 h-11 rounded-md font-medium w-full md:w-fit"
               >
                 <Link href="/services">
-                  Our solutions <ChevronRight className="ml-1.5 h-4 w-4" />
+                  Our solutions <ChevronRight className="ml-1.5 h-4 w-4 " />
                 </Link>
               </Button>
               <DiscussProjectCTA
-                colorClassName="border border-border text-foreground hover:bg-muted font-medium"
+                colorClassName="border border-border text-foreground hover:bg-muted font-medium w-full md:w-fit"
                 className="rounded-md h-12 px-8"
               />
             </div>
