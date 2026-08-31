@@ -47,9 +47,9 @@ export default function OurProducts() {
           <h2 className="font-sans text-xs md:text-sm font-bold tracking-widest uppercase text-primary mb-2">
             Our Products
           </h2>
-          <h3 className="font-sans text-3xl md:text-5xl font-extrabold text-foreground tracking-tight">
+          <h3 className="font-sans text-3xl md:text-5xl font-bold text-foreground tracking-tight">
             Software We've Built & <br />
-            <span className="font-accent italic text-[#FF8C38]">
+            <span className="font-accent italic font-normal text-[#FF8C38]">
               Used by Businesses Globally
             </span>
           </h3>

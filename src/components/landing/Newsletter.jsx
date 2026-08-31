@@ -106,8 +106,11 @@ export default function Newsletter() {
           <div className="bg-card border border-border rounded-2xl p-8 md:p-12">
             <div className="grid md:grid-cols-2 gap-10 items-center">
               <div>
-                <h2 className="font-sans text-2xl md:text-3xl font-bold text-[#FF8C38] mb-3 tracking-tight">
-                  Stay in the loop
+                <h2 className="font-sans text-2xl md:text-3xl font-bold text-primary mb-3 tracking-tight">
+                  Subscribe to our{" "}
+                  <span className="font-accent text-3xl md:text-4xl italic font-normal text-[#FF8C38]">
+                    Newsletter
+                  </span>
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
                   Occasional updates on new features, projects we've shipped,
