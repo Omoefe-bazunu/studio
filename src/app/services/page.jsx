@@ -83,7 +83,7 @@ export default function ServicesPage() {
         <div className="container mx-auto px-6 md:px-10 max-w-4xl text-center relative z-10">
           <motion.div {...fadeUp} transition={{ duration: 0.4 }}>
             <span className="font-sans text-xs font-bold tracking-widest uppercase text-primary">
-              Solutions & Capabilities
+              Solutions & Expertise
             </span>
 
             <h1 className="font-sans text-3xl mt-4 md:text-5xl font-bold tracking-tight text-foreground leading-[1.1] mb-4 max-w-2xl mx-auto">
@@ -158,7 +158,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 3. BOTTOM CTA SECTION (Light / White Background to Contrast with Dark Footer) */}
-      <section className="relative py-16 md:py-24 bg-background border-t border-border overflow-hidden">
+      <section className="relative py-12 md:py-20 bg-background border-t border-border overflow-hidden">
         <div
           className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[400px] h-[250px] bg-[#FF8C38]/[0.05] rounded-full blur-[100px] pointer-events-none"
           aria-hidden="true"
@@ -174,9 +174,9 @@ export default function ServicesPage() {
             transition={{ duration: 0.4 }}
             className="font-sans text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-[1.15] mb-3"
           >
-            Not sure which solution fits your{" "}
-            <span className="font-accent italic font-normal text-[#FF8C38]">
-              business?
+            Not sure which solution <br />
+            <span className="font-accent text-3xl md:text-5xl italic font-normal text-[#FF8C38]">
+              fits your business?
             </span>
           </motion.h2>
 
