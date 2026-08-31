@@ -130,7 +130,7 @@ export default function PricingPage() {
 
         <div className="relative z-10 text-center max-w-2xl mx-auto flex flex-col items-center">
           <span className="font-sans text-xs font-bold tracking-widest uppercase text-primary">
-            our PRCING
+            our PRICING
           </span>
 
           <h1 className="font-sans mt-4 text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
