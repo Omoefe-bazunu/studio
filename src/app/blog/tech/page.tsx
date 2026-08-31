@@ -15,7 +15,10 @@ export default function TechBlogPage() {
     <section>
       <div className="my-6 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl">
-          Tech Insights & Innovations
+          Tech Insights &<br />
+          <span className="font-accent lowercase font-normal italic text-[#FF8C38]">
+            Innovations
+          </span>
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
           {blogCategoriesData.find((cat) => cat.id === "Tech")?.description}

@@ -223,7 +223,7 @@ export default function JobApplicationCoursePage() {
         className="bg-slate-50 min-h-screen"
       >
         {/* Urgency Bar */}
-        <div className="bg-red-600 text-white text-center py-3.5 px-4 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+        {/* <div className="bg-red-600 text-white text-center py-3.5 px-4 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           <span className="font-semibold text-sm sm:text-base">
             ⏰ Special price ends in
           </span>
@@ -233,7 +233,7 @@ export default function JobApplicationCoursePage() {
           <span className="text-sm sm:text-base opacity-90">
             — then ₦{PRICING.original.toLocaleString()} returns
           </span>
-        </div>
+        </div> */}
 
         <Hero onCheckoutClick={scrollToCheckout} />
         <Problem />

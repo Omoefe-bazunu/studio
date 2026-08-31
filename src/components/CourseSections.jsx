@@ -6,14 +6,13 @@ import { COLORS, PRICING, COURSE_DETAILS } from "../config/settings";
 /* ───────── HERO ───────── */
 export function Hero({ onCheckoutClick }) {
   return (
-    <section className="relative pt-12 pb-24 px-5 overflow-hidden bg-[#F8FAF7] dark:bg-slate-950">
+    <section className="relative py-28 px-5 overflow-hidden bg-[#F8FAF7] dark:bg-slate-950">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-200/30 rounded-full blur-3xl -z-10" />
 
       <div className="max-w-3xl mx-auto text-center relative">
-        <div className="inline-flex items-center gap-2 bg-white border border-emerald-100 text-emerald-800 text-sm font-medium px-4 py-1.5 rounded-full mb-8 shadow-sm">
-          <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+        {/* <div className="inline-flex items-center gap-2 uppercase text-slate-950 text-sm font-medium px-4 py-1.5  mb-8 ">
           Smartphone-friendly • Lifetime access
-        </div>
+        </div> */}
 
         <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] uppercase font-extrabold leading-[1.12] tracking-tight mb-6 text-slate-900">
           Stop sending CVs
@@ -511,12 +510,12 @@ export function Checkout({ form, onChange, onPay, loading, h, m, s }) {
             READY TO START GETTING REPLIES?
           </p>
 
-          <div className="inline-flex items-center gap-2 bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-full">
+          {/* <div className="inline-flex items-center gap-2 bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-full">
             <span>⏰ Price resets in</span>
             <span className="bg-white text-red-700 font-bold px-2.5 py-0.5 rounded font-mono">
               {h}:{m}:{s}
             </span>
-          </div>
+          </div> */}
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-emerald-900/30 dark:border-slate-700 shadow-xl">

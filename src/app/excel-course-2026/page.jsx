@@ -288,13 +288,10 @@ export default function ExcelCoursePage() {
         </div>
 
         {/* ── HERO ── */}
-        <header className="relative text-center px-5 pt-14 pb-12 overflow-hidden">
+        <header className="relative text-center px-5 pt-24 pb-12 overflow-hidden">
           <div className="absolute -top-14 -right-14 w-52 h-52 bg-yellow-300 rounded-full opacity-10 pointer-events-none" />
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-yellow-300 rounded-full opacity-10 pointer-events-none" />
 
-          <p className="text-yellow-300 text-[11px] font-semibold tracking-[3px] uppercase mb-5">
-            High-Er Enterprises
-          </p>
           <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-3">
             Learn <span className="text-yellow-300">Microsoft Excel</span>
             <br />
@@ -321,7 +318,7 @@ export default function ExcelCoursePage() {
             ))}
           </div>
 
-          <div className="inline-block bg-yellow-300 text-[#0f3b22] rounded-xl px-8 py-5 mb-5">
+          <div className="inline-block bg-white text-[#0f3b22] rounded-xl px-8 py-5 mb-5">
             <span className="block text-sm font-medium line-through opacity-60">
               ₦17,000
             </span>
@@ -468,7 +465,7 @@ export default function ExcelCoursePage() {
               ].map((b) => (
                 <div
                   key={b.title}
-                  className="bg-yellow-300 text-[#0f3b22] rounded-xl p-5 flex gap-4 items-start"
+                  className="bg-white text-[#0f3b22] rounded-xl p-5 flex gap-4 items-start"
                 >
                   <span className="text-3xl shrink-0">{b.icon}</span>
                   <div>
@@ -562,12 +559,12 @@ export default function ExcelCoursePage() {
             </h2>
 
             {/* countdown */}
-            <div className="bg-yellow-300/10 border border-yellow-300/25 rounded-lg px-4 py-3 mb-5 text-center">
+            {/* <div className="bg-yellow-300/10 border border-yellow-300/25 rounded-lg px-4 py-3 mb-5 text-center">
               <span className="text-white/70 text-sm">⏰ Price resets in </span>
               <span className="text-yellow-300 font-extrabold text-base ml-1">
                 {timerReady ? `${h}:${m}:${s}` : "--:--:--"}
               </span>
-            </div>
+            </div> */}
 
             {[
               {
@@ -628,12 +625,6 @@ export default function ExcelCoursePage() {
             </p>
           </div>
         </section>
-
-        <footer className="text-center py-8 px-5 text-white/30 text-xs border-t border-white/10">
-          © {new Date().getFullYear()} High-Er Enterprises · All rights reserved
-          <br />
-          Questions? Chat us on WhatsApp (09043970401)
-        </footer>
       </main>
 
       {showAdminModal && (
