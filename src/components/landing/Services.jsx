@@ -114,10 +114,10 @@ export default function Services() {
             </p>
 
             <div className="mt-4 flex flex-col items-center lg:items-start gap-4">
-              <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 hover:text-white/90 border border-primary" />
               <p className="text-sm text-muted-foreground">
                 Not sure which solution fits your business?
               </p>
+              <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 hover:text-white/90 border border-primary" />
             </div>
           </div>
 
