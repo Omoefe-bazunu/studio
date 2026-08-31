@@ -178,7 +178,7 @@ export default function Hero() {
           audience and get them to take action.
         </p>
 
-        <div className="mt-8 flex items-center gap-4">
+        <div className="mt-8 flex md:items-center items-start gap-4 flex-col md:flex-row">
           <Button
             size="lg"
             asChild
