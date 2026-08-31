@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -36,7 +36,6 @@ function formatPrice(amount, currency) {
   }).format(amount);
 }
 
-/* ── Success Modal ── */
 function SuccessModal({ open, onClose, customerEmail }) {
   if (!open) return null;
   return (
@@ -46,7 +45,7 @@ function SuccessModal({ open, onClose, customerEmail }) {
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative z-10 bg-card border border-border rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+      <div className="relative z-10 bg-card border border-border rounded-2xl p-8 max-w-md w-full text-center shadow-xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
@@ -55,15 +54,15 @@ function SuccessModal({ open, onClose, customerEmail }) {
           <X className="w-5 h-5" />
         </button>
         <div className="flex items-center justify-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-950/40 flex items-center justify-center">
-            <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
+          <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-950/40 flex items-center justify-center">
+            <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
           </div>
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
-          Payment Successful!
+        <h2 className="font-sans text-2xl font-bold text-foreground mb-2 tracking-tight">
+          Payment successful
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-6">
-          Thank you for your purchase. A confirmation and download link will be
+          Thanks for your purchase. A confirmation and download link will be
           sent to{" "}
           <span className="font-semibold text-foreground">{customerEmail}</span>{" "}
           shortly.
@@ -71,12 +70,12 @@ function SuccessModal({ open, onClose, customerEmail }) {
         <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl p-4 text-left mb-6">
           <Mail className="w-5 h-5 text-primary flex-shrink-0" />
           <p className="text-sm text-muted-foreground">
-            Check your inbox (and spam folder) for your product delivery email.
+            Check your inbox (and spam folder) for the delivery email.
           </p>
         </div>
         <button
           onClick={onClose}
-          className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-colors"
+          className="w-full h-11 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-colors"
         >
           Done
         </button>
@@ -85,7 +84,6 @@ function SuccessModal({ open, onClose, customerEmail }) {
   );
 }
 
-/* ── Image Fullscreen Modal ── */
 function ImageFullscreenModal({ open, onClose, imageUrl, alt }) {
   if (!open || !imageUrl) return null;
   return (
@@ -97,7 +95,7 @@ function ImageFullscreenModal({ open, onClose, imageUrl, alt }) {
       />
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-20 bg-white/10 hover:bg-white/20 text-white border border-white/20 p-2.5 rounded-full transition-colors"
+        className="absolute top-4 right-4 z-20 bg-white/10 hover:bg-white/20 text-white border border-white/20 p-2.5 rounded-md transition-colors"
         aria-label="Close fullscreen"
       >
         <X className="w-5 h-5" />
@@ -113,7 +111,6 @@ function ImageFullscreenModal({ open, onClose, imageUrl, alt }) {
   );
 }
 
-/* ── Checkout Form ── */
 function CheckoutForm({ product, onSuccess }) {
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
   const [loading, setLoading] = useState(false);
@@ -175,12 +172,14 @@ function CheckoutForm({ product, onSuccess }) {
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold text-foreground text-sm">Your Details</h3>
+      <h3 className="font-sans font-semibold text-foreground text-sm">
+        Your details
+      </h3>
       {[
         {
           id: "co-name",
           name: "name",
-          label: "Full Name",
+          label: "Full name",
           type: "text",
           placeholder: "John Doe",
           icon: User,
@@ -188,7 +187,7 @@ function CheckoutForm({ product, onSuccess }) {
         {
           id: "co-email",
           name: "email",
-          label: "Email Address",
+          label: "Email address",
           type: "email",
           placeholder: "john@example.com",
           icon: Mail,
@@ -196,7 +195,7 @@ function CheckoutForm({ product, onSuccess }) {
         {
           id: "co-phone",
           name: "phone",
-          label: "Phone Number",
+          label: "Phone number",
           type: "tel",
           placeholder: "+234 800 000 0000",
           icon: Phone,
@@ -205,7 +204,7 @@ function CheckoutForm({ product, onSuccess }) {
         <div key={f.id} className="space-y-1">
           <label
             htmlFor={f.id}
-            className="block text-xs font-medium text-muted-foreground uppercase tracking-wider"
+            className="block text-xs font-medium text-muted-foreground"
           >
             {f.label}
           </label>
@@ -218,7 +217,7 @@ function CheckoutForm({ product, onSuccess }) {
               placeholder={f.placeholder}
               value={form[f.name]}
               onChange={handleChange}
-              className="w-full pl-9 pr-4 py-2.5 bg-background border border-input rounded-lg text-sm text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
+              className="w-full pl-9 pr-4 py-2.5 bg-background border border-input rounded-md text-sm text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -226,7 +225,9 @@ function CheckoutForm({ product, onSuccess }) {
       <button
         onClick={startPayment}
         disabled={loading}
-        className={`w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-primary/90"}`}
+        className={`w-full h-11 rounded-md bg-primary text-primary-foreground font-medium flex items-center justify-center gap-2 transition-colors ${
+          loading ? "opacity-70 cursor-not-allowed" : "hover:bg-primary/90"
+        }`}
       >
         {loading ? (
           <>
@@ -240,14 +241,13 @@ function CheckoutForm({ product, onSuccess }) {
           </>
         )}
       </button>
-      <p className="text-center text-[11px] text-muted-foreground">
-        🔒 Secured by Flutterwave · Card · Bank Transfer · USSD
+      <p className="text-center text-xs text-muted-foreground">
+        Secured by Flutterwave — card, bank transfer, or USSD
       </p>
     </div>
   );
 }
 
-/* ── Main Page ── */
 export default function ProductSlugPage() {
   const params = useParams();
   const slug = Array.isArray(params?.slug)
@@ -287,7 +287,7 @@ export default function ProductSlugPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center py-16">
         <div className="text-center">
           <ShoppingBag className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-muted-foreground">Product not found.</p>
@@ -295,7 +295,7 @@ export default function ProductSlugPage() {
             href="/shop"
             className="text-primary text-sm mt-2 inline-block hover:underline"
           >
-            ← Back to Shop
+            ← Back to shop
           </Link>
         </div>
       </div>
@@ -309,7 +309,6 @@ export default function ProductSlugPage() {
         onClose={() => setSuccessModal(false)}
         customerEmail={successEmail}
       />
-
       <ImageFullscreenModal
         open={isImageFullscreen}
         onClose={() => setIsImageFullscreen(false)}
@@ -317,21 +316,18 @@ export default function ProductSlugPage() {
         alt={product.name}
       />
 
-      {/* Back */}
-      <div className="container mx-auto px-6 pt-8 w-full flex justify-center items-center">
+      <div className="container mx-auto px-6 pt-8">
         <Link
           href="/shop"
-          className="bg-primary text-primary-foreground font-black py-2 px-4 rounded-full uppercase tracking-widest hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Shop
+          <ArrowLeft className="w-4 h-4" /> Back to shop
         </Link>
       </div>
 
-      <div className="container mx-auto px-6 py-8 max-w-5xl">
+      <div className="container mx-auto px-6 py-24 max-w-5xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16">
-          {/* Left: Media + Details */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Media block — image by default, video on demand */}
             <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden border border-border group">
               {product.imageUrl && !isPlayingVideo ? (
                 <>
@@ -344,25 +340,21 @@ export default function ProductSlugPage() {
                     sizes="(max-width: 1024px) 100vw, 60vw"
                     onClick={() => setIsImageFullscreen(true)}
                   />
-                  {/* Controls overlay */}
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-10">
-                    {/* Video trigger — only shown if videoUrl exists */}
                     {product.videoUrl ? (
                       <button
                         onClick={() => setIsPlayingVideo(true)}
-                        className="bg-background/90 backdrop-blur-md px-4 py-2.5 rounded-xl border border-border flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-lg"
+                        className="bg-background/90 backdrop-blur-md px-4 py-2.5 rounded-md border border-border flex items-center gap-2 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
                       >
-                        <Play className="w-3 h-3 fill-current stroke-none" />
-                        Watch Demo
+                        <Play className="w-3.5 h-3.5 fill-current stroke-none" />
+                        Watch demo
                       </button>
                     ) : (
                       <div />
                     )}
-
-                    {/* Fullscreen image button */}
                     <button
                       onClick={() => setIsImageFullscreen(true)}
-                      className="bg-background/90 backdrop-blur-md p-2.5 rounded-xl border border-border text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-lg"
+                      className="bg-background/90 backdrop-blur-md p-2.5 rounded-md border border-border text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
                       aria-label="View full image"
                       title="View full image"
                     >
@@ -383,9 +375,9 @@ export default function ProductSlugPage() {
                   />
                   <button
                     onClick={() => setIsPlayingVideo(false)}
-                    className="absolute top-3 right-3 z-20 bg-background/90 backdrop-blur-md text-foreground border border-border px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-widest hover:bg-secondary transition-colors"
+                    className="absolute top-3 right-3 z-20 bg-background/90 backdrop-blur-md text-foreground border border-border px-3 py-1.5 rounded-md text-sm font-medium hover:bg-secondary transition-colors"
                   >
-                    Return to Image
+                    Return to image
                   </button>
                 </div>
               ) : (
@@ -396,18 +388,18 @@ export default function ProductSlugPage() {
             </div>
 
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-3">
+              <h2 className="font-sans font-semibold text-foreground mb-3">
                 About this product
               </h2>
-              <p className="text-foreground leading-relaxed whitespace-pre-wrap">
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                 {product.description}
               </p>
             </div>
 
             {product.features?.length > 0 && (
               <div>
-                <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-3">
-                  What&apos;s included
+                <h2 className="font-sans font-semibold text-foreground mb-3">
+                  What's included
                 </h2>
                 <ul className="space-y-2">
                   {product.features.map((f, i) => (
@@ -424,14 +416,13 @@ export default function ProductSlugPage() {
             )}
           </div>
 
-          {/* Right: Purchase card */}
           <div className="lg:col-span-2">
             <div className="sticky top-8">
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+              <div className="bg-card border border-border rounded-2xl p-6">
+                <p className="text-xs text-muted-foreground mb-1">
                   {product.category}
                 </p>
-                <h1 className="text-2xl font-bold text-foreground tracking-tight leading-tight mb-4">
+                <h1 className="font-sans text-2xl font-bold text-foreground tracking-tight leading-tight mb-4">
                   {product.name}
                 </h1>
                 <div className="flex items-baseline gap-2 mb-6">
@@ -457,13 +448,14 @@ export default function ProductSlugPage() {
                       This product is hosted on an external platform. Click
                       below to proceed.
                     </p>
+
                     <a
                       href={product.externalUrl || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-[#FF8C38] hover:bg-[#e67e32] text-white font-semibold transition-colors shadow-lg"
+                      className="flex items-center justify-center gap-2 w-full h-11 rounded-md bg-[#FF8C38] hover:bg-[#e67e32] text-white font-medium transition-colors"
                     >
-                      Get Product <ExternalLink className="w-4 h-4" />
+                      Get product <ExternalLink className="w-4 h-4" />
                     </a>
                   </div>
                 )}

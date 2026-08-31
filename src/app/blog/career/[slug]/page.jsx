@@ -235,7 +235,7 @@ export default function CareerBlogPostPage() {
           <Badge className="bg-[#746b65] text-white rounded-full px-4 py-1 border-none font-bold uppercase tracking-widest text-[10px]">
             {post.category}
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 leading-[1.1] tracking-tighter italic">
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 leading-[1.1] tracking-tighter ">
             {post.title}
           </h1>
 
@@ -275,7 +275,7 @@ export default function CareerBlogPostPage() {
           />
         </div>
         {post.imageCreditText && (
-          <p className="text-[10px] text-slate-400 text-right font-medium italic mb-12">
+          <p className="text-[10px] text-slate-400 text-right font-medium  mb-12">
             Media Credit:{" "}
             {post.imageCreditLink ? (
               <a href={post.imageCreditLink} className="underline">
@@ -363,7 +363,7 @@ export default function CareerBlogPostPage() {
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
         <AlertDialogContent className="rounded-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-bold text-xl uppercase tracking-tighter italic">
+            <AlertDialogTitle className="font-bold text-xl uppercase tracking-tighter ">
               Confirm Resource Deletion
             </AlertDialogTitle>
             <AlertDialogDescription>

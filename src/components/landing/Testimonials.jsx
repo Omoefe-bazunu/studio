@@ -92,10 +92,14 @@ export default function Testimonials() {
           <h2 className="font-heading text-sm font-bold tracking-widest uppercase text-[#6B46C1] mb-3">
             Client Success
           </h2>
-          <h3 className="font-heading text-3xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
-            Trusted by Ambitious <br />
-            <span className="text-[#FF8C38]">Brands Worldwide</span>
-          </h3>
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h3 className="font-sans text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+              Businesses Trust Us <br />
+              <span className="font-accent italic text-[#FF8C38]">
+                with Their Growth
+              </span>
+            </h3>
+          </div>
         </div>
 
         {/* Auto-Slider Container */}
@@ -165,7 +169,7 @@ export default function Testimonials() {
         {/* Section-closing CTA */}
         <div className="mt-12 flex flex-col items-center text-center gap-4">
           <p className="text-sm text-slate-400">Ready to start your project?</p>
-          <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 border border-primary" />
+          <DiscussProjectCTA colorClassName="text-white bg-primary hover:bg-primary/90 hover:text-white/90 border border-primary" />
         </div>
       </div>
     </section>

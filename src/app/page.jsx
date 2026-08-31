@@ -4,7 +4,8 @@ import Testimonials from "@/components/landing/Testimonials";
 import AdsBannerSection from "@/components/landing/AdsBannerSection";
 import TechStackTicker from "@/components/landing/TechStackTicker";
 import Newsletter from "@/components/landing/Newsletter";
-import Groweasy from "@/components/landing/GrowEasy";
+import Groweasy from "@/components/landing/OurProducts";
+import OurProducts from "@/components/landing/OurProducts";
 // import BlogArticles from "@/components/landing/BlogArticles";
 
 export default function HomePage() {
@@ -15,7 +16,7 @@ export default function HomePage() {
         <TechStackTicker />
         <Services />
         <Testimonials />
-        <Groweasy />
+        <OurProducts />
         <AdsBannerSection />
         <Newsletter />
         {/* <BlogArticles /> */}

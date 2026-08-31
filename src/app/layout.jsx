@@ -1,4 +1,8 @@
-import { Bricolage_Grotesque, Poppins } from "next/font/google";
+import {
+  Space_Grotesk,
+  Instrument_Serif,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -6,21 +10,29 @@ import FirebaseAnalyticsProvider from "@/components/analytics/FirebaseAnalyticsP
 import CookieConsent from "@/components/CookieConsent";
 import Script from "next/script";
 
-// Layout Components
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 
-const bricolage = Bricolage_Grotesque({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
   display: "swap",
 });
 
-const poppins = Poppins({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-poppins",
+  weight: ["400"],
+  style: ["italic"],
+  variable: "--font-instrument-serif",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
@@ -58,27 +70,20 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${bricolage.variable} ${poppins.variable}`}
+      className={`${spaceGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head />
-      {/* flex column layout ensures the footer is always pushed to the bottom */}
-      <body className="antialiased font-sans flex flex-col min-h-screen">
+      <body className="antialiased flex flex-col min-h-screen">
         <AuthProvider>
           <FirebaseAnalyticsProvider />
-
           <Header />
-
-          {/* flex-1 lets main take up remaining space, pt-20 clears the fixed header */}
-          <main className="flex-1 pt-20">{children}</main>
-
+          <main className="flex-1">{children}</main>
           <Footer />
-
           <CookieConsent />
           <Toaster />
           <WhatsAppWidget />
         </AuthProvider>
-
         {/* Meta Pixel */}
 
         <Script id="fb-pixel" strategy="afterInteractive">

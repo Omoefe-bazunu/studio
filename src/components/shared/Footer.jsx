@@ -48,18 +48,19 @@ export default function Footer() {
       id="contact"
       className="bg-[#0F0A1F] text-white py-8 border-t border-white/5"
     >
-      <div className="container mx-auto px-6 max-w-7xl">
+      <div className="container mx-auto px-6 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           {/* Brand Column */}
           <div className="space-y-6">
             <Link href="/" className="inline-block group">
-              <span className="text-2xl font-bold tracking-tighter">
+              <span className="text-[14px] font-bold tracking-tighter">
                 HIGH-ER{" "}
-                <span className="text-[#6B46C1] font-light">Enterprises</span>
+                <span className="text-[#6B46C1] font-light">ENTERPRISES</span>
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-              Building the solutions that puts your offer in front of paying customers.
+              Building the solutions that puts your offer in front of paying
+              customers.
             </p>
           </div>
 

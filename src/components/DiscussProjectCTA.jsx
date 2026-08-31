@@ -107,7 +107,7 @@ function ContactModal({ open, onClose }) {
 export default function DiscussProjectCTA({
   colorClassName = "text-white bg-white/5 hover:bg-white/10 border hover:text-white border-white/10",
   label = "Discuss Project",
-  className = "",
+  className = "px-6 h-11",
 }) {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -118,7 +118,7 @@ export default function DiscussProjectCTA({
         variant="ghost"
         onClick={() => setModalOpen(true)}
         aria-label="Discuss your project with us"
-        className={`px-8 h-14 transition-all backdrop-blur-sm ${colorClassName} rounded-full ${className}`}
+        className={`transition-all backdrop-blur-sm ${colorClassName} rounded-md ${className}`}
       >
         {label}
         <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />

@@ -18,8 +18,10 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-poppins)", "sans-serif"],
-        heading: ["var(--font-bricolage)", "sans-serif"],
+        sans: ["var(--font-space-grotesk)", "sans-serif"],
+        heading: ["var(--font-space-grotesk)", "sans-serif"],
+        accent: ["var(--font-instrument-serif)", "serif"],
+        mono: ["var(--font-jetbrains-mono)", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",

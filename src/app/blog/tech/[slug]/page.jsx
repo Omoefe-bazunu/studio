@@ -229,7 +229,7 @@ export default function TechBlogPostPage() {
             </Badge>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tighter italic">
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tighter ">
             {post.title}
           </h1>
 
@@ -274,7 +274,7 @@ export default function TechBlogPostPage() {
           />
         </div>
         {post.imageCreditText && (
-          <p className="text-[10px] text-slate-400 text-right font-medium italic mb-12">
+          <p className="text-[10px] text-slate-400 text-right font-medium  mb-12">
             Reference:{" "}
             {post.imageCreditLink ? (
               <a
@@ -367,7 +367,7 @@ export default function TechBlogPostPage() {
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
         <AlertDialogContent className="rounded-lg border-2 border-red-100">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-bold text-xl uppercase tracking-tighter italic flex items-center gap-2">
+            <AlertDialogTitle className="font-bold text-xl uppercase tracking-tighter  flex items-center gap-2">
               <AlertCircle className="text-red-500" /> Confirm Purge
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-500">

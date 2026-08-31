@@ -2,128 +2,205 @@
 
 import React from "react";
 import Link from "next/link";
-import { Code2, Smartphone, Megaphone, Bot, Target } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Code2,
+  Smartphone,
+  Target,
+  Bot,
+  ArrowUpRight,
+  Sparkles,
+} from "lucide-react";
+import DiscussProjectCTA from "@/components/DiscussProjectCTA";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 15 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+};
 
 const services = [
   {
     id: "web-saas",
-    title: "Web & SaaS Development",
+    category: "Software",
+    title: "Websites & SaaS Platforms",
     icon: Code2,
     href: "/services/web-development",
+    iconColor: "text-[#7B68F0]",
+    iconBg: "bg-[#7B68F0]/15",
     description:
-      "High-performance websites and scalable SaaS platforms engineered for growth and complex business logic.",
-    features: [
-      "Custom Web Apps",
-      "SaaS Architecture",
-      "E-commerce Solutions",
-      "Cloud Infrastructure",
-    ],
-  },
-  {
-    id: "paid-ads",
-    title: "Paid Ads",
-    icon: Target,
-    href: "/services/paid-ads",
-    description:
-      "Data-driven ad campaigns that put your brand in front of the right audience and drive measurable ROI.",
-    features: ["Google Ads", "Meta Ads", "Campaign Strategy", "ROI Tracking"],
+      "Custom web applications and SaaS platforms designed to convert visitors into paying clients and automate core business operations.",
   },
   {
     id: "mobile",
-    title: "Mobile Apps",
+    category: "Mobile",
+    title: "Native Mobile Apps",
     icon: Smartphone,
     href: "/services/mobile-app-development",
+    iconColor: "text-[#FF8C38]",
+    iconBg: "bg-[#FF8C38]/15",
     description:
-      "Native and cross-platform apps that deliver seamless, engaging mobile experiences.",
-    features: [
-      "iOS & Android Apps",
-      "UI/UX Design",
-      "Performance Tuning",
-      "App Store Launch",
-    ],
+      "Fast, intuitive iOS and Android apps designed for smooth user experiences, high retention, and long-term engagement.",
   },
-  // {
-  //   id: "marketing-design",
-  //   title: "Marketing & Design",
-  //   icon: Megaphone,
-  //   href: "/services/marketing-ads-design",
-  //   description:
-  //     "Eye-catching visuals and creative strategy that strengthen your brand across every channel.",
-  //   features: [
-  //     "Social Media Ads",
-  //     "Creative Design",
-  //     "Brand Strategy",
-  //     "Content Marketing",
-  //   ],
-  // },
+  {
+    id: "paid-ads",
+    category: "Acquisition",
+    title: "Paid Ads That Sell",
+    icon: Target,
+    href: "/services/paid-ads",
+    iconColor: "text-[#7B68F0]",
+    iconBg: "bg-[#7B68F0]/15",
+    description:
+      "Targeted Meta and Google campaigns set up to reach active buyers, generate qualified leads, and optimize ROI.",
+  },
   {
     id: "ai-automation",
-    title: "AI Automation",
+    category: "Automation",
+    title: "AI Workflow Automation",
     icon: Bot,
     href: "/services/ai-automation",
+    iconColor: "text-[#FF8C38]",
+    iconBg: "bg-[#FF8C38]/15",
     description:
-      "Intelligent AI-powered workflows that automate repetitive tasks and streamline your business operations.",
-    features: [
-      "Workflow Automation",
-      "AI Chatbots",
-      "Process Optimization",
-      "Custom Integrations",
-    ],
+      "Intelligent workflows that automate repetitive tasks—replies, invoicing, follow-ups—saving your business time and operating cost.",
   },
 ];
 
 export default function ServicesPage() {
   return (
-    <section className="py-12 bg-[#0F0A1F] min-h-screen">
-      <div className="container mx-auto px-6 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="font-heading text-4xl md:text-6xl font-black uppercase italic tracking-tighter text-white mb-6">
-            Our Solutions
-          </h1>
-          <div className="w-20 h-1 bg-[#FF8C38] mx-auto" />
+    <>
+      {/* 1. HERO SECTION (Light / White Background) */}
+      <section className="relative pt-28 pb-14 md:pt-36 md:pb-20 bg-background overflow-hidden border-b border-border/50">
+        <div
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-primary/[0.05] rounded-full blur-[120px] pointer-events-none"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-[radial-gradient(rgba(0,0,0,0.06)_1px,transparent_1px)] dark:bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_45%,black_20%,transparent_75%)] pointer-events-none"
+          aria-hidden="true"
+        />
+
+        <div className="container mx-auto px-6 md:px-10 max-w-4xl text-center relative z-10">
+          <motion.div {...fadeUp} transition={{ duration: 0.4 }}>
+            <span className="font-sans text-xs font-bold tracking-widest uppercase text-primary">
+              Solutions & Capabilities
+            </span>
+
+            <h1 className="font-sans text-3xl mt-4 md:text-5xl font-bold tracking-tight text-foreground leading-[1.1] mb-4 max-w-2xl mx-auto">
+              Everything your business needs to{" "}
+              <span className="font-accent italic font-normal text-[#FF8C38]">
+                scale online.
+              </span>
+            </h1>
+
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto">
+              We build high-converting software, automate manual operations, and
+              drive targeted customer acquisition.
+            </p>
+          </motion.div>
         </div>
+      </section>
 
-        {/* Service Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {services.map((service) => (
-            <Link key={service.id} href={service.href} className="group">
-              <div className="h-full bg-[#1A142D] border border-white/5 hover:border-[#6B46C1]/50 p-8 rounded-[2rem] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-900/20">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 bg-[#6B46C1]/20 rounded-xl text-[#FF8C38] group-hover:bg-[#6B46C1]/40 transition-colors">
-                    <service.icon size={28} />
-                  </div>
-                  <h2 className="font-heading text-2xl font-black italic text-white uppercase tracking-tighter">
-                    {service.title}
-                  </h2>
-                </div>
+      {/* 2. SERVICES GRID SECTION (Deep Purple Background for High Contrast) */}
+      <section className="py-16 md:py-24 bg-[#120A28] relative overflow-hidden text-white">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,black,transparent_75%)] pointer-events-none"
+          aria-hidden="true"
+        />
 
-                <p className="font-sans text-slate-400 mb-6 leading-relaxed">
-                  {service.description}
-                </p>
+        <div className="container mx-auto px-6 md:px-10 max-w-5xl relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {services.map((service, index) => (
+              <motion.div
+                key={service.id}
+                {...fadeUp}
+                transition={{ duration: 0.4, delay: index * 0.06 }}
+              >
+                <Link
+                  href={service.href}
+                  className="group relative flex flex-col justify-between h-full bg-[#140f25] border border-white/10 p-6 md:p-7 rounded-xl hover:border-[#7B68F0]/50 hover:bg-[#19132e] transition-all duration-200 hover:-translate-y-0.5"
+                >
+                  <div>
+                    {/* Header Row: Icon + Category + Arrow */}
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${service.iconBg}`}
+                        >
+                          <service.icon
+                            className={`w-5 h-5 ${service.iconColor}`}
+                          />
+                        </div>
+                        <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#A79FC4]">
+                          {service.category}
+                        </span>
+                      </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {service.features.map((feature, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 text-slate-500 text-sm font-sans"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#FF8C38] shrink-0" />
-                      {feature}
+                      <div className="w-8 h-8 rounded-full bg-white/5 text-slate-300 group-hover:bg-[#7B68F0] group-hover:text-white flex items-center justify-center shrink-0 transition-all duration-200">
+                        <ArrowUpRight className="w-4 h-4" />
+                      </div>
                     </div>
-                  ))}
-                </div>
 
-                <div className="mt-6 pt-6 border-t border-white/5">
-                  <span className="text-white group-hover:text-[#FF8C38] text-xs font-black uppercase tracking-widest transition-colors">
-                    View Projects →
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
+                    {/* Title & Description */}
+                    <h2 className="font-sans text-xl font-bold text-white mb-2 group-hover:text-[#FF8C38] transition-colors">
+                      {service.title}
+                    </h2>
+
+                    <p className="text-xs md:text-sm text-[#A79FC4] leading-relaxed">
+                      {service.description}
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* 3. BOTTOM CTA SECTION (Light / White Background to Contrast with Dark Footer) */}
+      <section className="relative py-16 md:py-24 bg-background border-t border-border overflow-hidden">
+        <div
+          className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[400px] h-[250px] bg-[#FF8C38]/[0.05] rounded-full blur-[100px] pointer-events-none"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-[radial-gradient(rgba(0,0,0,0.05)_1px,transparent_1px)] dark:bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent_75%)] pointer-events-none"
+          aria-hidden="true"
+        />
+
+        <div className="container mx-auto px-6 max-w-2xl text-center relative z-10">
+          <motion.h2
+            {...fadeUp}
+            transition={{ duration: 0.4 }}
+            className="font-sans text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-[1.15] mb-3"
+          >
+            Not sure which solution fits your{" "}
+            <span className="font-accent italic font-normal text-[#FF8C38]">
+              business?
+            </span>
+          </motion.h2>
+
+          <motion.p
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-muted-foreground text-sm md:text-base mb-6 max-w-md mx-auto"
+          >
+            Tell us about your project or current operational bottlenecks. We'll
+            help you figure out the exact right strategy.
+          </motion.p>
+
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="flex items-center justify-center"
+          >
+            <DiscussProjectCTA
+              colorClassName="bg-primary hover:bg-primary/90 text-white font-medium"
+              className="rounded-md h-11 px-7 shadow-md shadow-primary/20"
+            />
+          </motion.div>
+        </div>
+      </section>
+    </>
   );
 }

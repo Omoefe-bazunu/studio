@@ -1,142 +1,201 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
-  ShieldCheck,
-  Globe,
   ArrowUpRight,
-  CheckCircleIcon,
+  Target,
+  Zap,
+  Activity,
+  ChevronRight,
 } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import DiscussProjectCTA from "@/components/DiscussProjectCTA";
 
-const STATS = [
+const fadeUp = {
+  initial: { opacity: 0, y: 15 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+};
+
+const PRINCIPLES = [
   {
-    label: "Quality Results",
-    icon: CheckCircleIcon,
-    color: "text-[#6B46C1]",
+    icon: Target,
+    title: "Outcomes over output",
+    desc: "We don't just ship features. We build digital solutions designed to directly increase your revenue and reduce operational friction.",
   },
   {
-    label: "On-Time Delivery",
-    icon: Globe,
-    color: "text-blue-500",
+    icon: ArrowUpRight,
+    title: "Move fast, iterate openly",
+    desc: "No black boxes or long waiting periods. You get transparent weekly progress and working software early in the process.",
   },
   {
-    label: "Client Focused",
-    icon: ShieldCheck,
-    color: "text-[#FF8C38]",
+    icon: Activity,
+    title: "Launch is just the start",
+    desc: "Most agencies hand off code or a active campaign, and leave. We stick around to optimize performance and tweak campaigns to make sure you get value for money spent.",
   },
 ];
+
 export default function AboutUs() {
   return (
-    <section className="relative py-20 bg-[#0F0A1F] overflow-hidden">
-      {/* Decorative Background Glow */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-[#6B46C1]/10 blur-[120px] rounded-full pointer-events-none" />
+    <>
+      {/* 1. HERO (Light / White Background with Subtle Radial Grid & Glow) */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-24 bg-background overflow-hidden">
+        {/* Ambient indigo glow */}
+        <div
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-primary/[0.05] rounded-full blur-[120px] pointer-events-none"
+          aria-hidden="true"
+        />
 
-      <div className="container mx-auto px-6 max-w-7xl relative z-10">
-        <div className="grid lg:grid-cols-12 gap-16 items-center">
-          {/* 1. IMAGE COMPOSITION */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="lg:col-span-5 relative group"
-          >
-            <div className="relative h-[500px] w-full rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl">
-              <Image
-                src="/ABOUT.jpeg"
-                alt="High-ER Innovation Lab"
-                fill
-                className="object-cover transition-all duration-700 scale-105 group-hover:scale-100"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F0A1F] via-transparent to-transparent opacity-80" />
-            </div>
+        {/* Subtle dot pattern with radial mask */}
+        <div
+          className="absolute inset-0 bg-[radial-gradient(rgba(0,0,0,0.06)_1px,transparent_1px)] dark:bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_45%,black_20%,transparent_75%)] pointer-events-none"
+          aria-hidden="true"
+        />
 
-            {/* Floating Achievement Badge */}
-            <div className="absolute -bottom-6 -right-6 bg-[#1A142D] border border-white/10 p-6 rounded-2xl shadow-2xl hidden md:block">
-              <p className="font-sans text-[10px] font-black uppercase tracking-widest text-[#FF8C38] mb-1">
-                Our Core
-              </p>
-              <p className="font-heading text-xl font-black italic text-white leading-none">
-                INDUSTRY <br /> STANDARD
-              </p>
-            </div>
-          </motion.div>
+        <div className="container mx-auto px-6 md:px-10 max-w-4xl text-center relative z-10">
+          <motion.div {...fadeUp} transition={{ duration: 0.4 }}>
+            <p className="font-sans text-xs font-bold tracking-widest uppercase text-primary mb-4">
+              About HIGH-ER Enterprises
+            </p>
+            <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.1] mb-6 max-w-3xl mx-auto">
+              We build software & campaigns that{" "}
+              <span className="font-accent italic font-normal text-[#FF8C38]">
+                grow your business.
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-8">
+              High-ER Enterprises is a digital solutions startup that builds
+              custom software, automate tedious workflows with AI, and run
+              high-converting ad campaigns to help your business grow and scale.
+            </p>
 
-          {/* 2. TEXT CONTENT */}
-          <div className="lg:col-span-7 space-y-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="space-y-6"
-            >
-              <h2 className="font-heading text-4xl md:text-6xl font-black uppercase italic tracking-tight text-white leading-[0.9]">
-                Beyond Code. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6B46C1] to-[#FF8C38]">
-                  Growth-focused Solutions.
-                </span>
-              </h2>
-
-              <p className="font-sans text-lg text-slate-400 leading-relaxed max-w-2xl font-medium">
-                High-ER Enterprises is a digital solutions startup that helps
-                high-ticket businesses like yours build a solid digital presence
-                that puts your offer in front of customers who are ready to pay.
-              </p>
-            </motion.div>
-
-            {/* 3. FEATURE METRICS */}
-            <div className="grid md:grid-cols-3 gap-4">
-              {STATS.map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  viewport={{ once: true }}
-                  className="p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-white/10 transition-colors"
-                >
-                  <stat.icon className={`h-6 w-6 ${stat.color} mb-3`} />
-                  <p className="font-sans text-[11px] font-black uppercase tracking-widest text-slate-300 leading-tight">
-                    {stat.label}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* 4. CALL TO ACTION */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              viewport={{ once: true }}
-              className="pt-4 flex flex-wrap gap-4"
-            >
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <Button
                 asChild
                 size="lg"
-                className="font-sans bg-white text-black hover:bg-white/90 rounded-none h-14 px-10 font-black uppercase italic tracking-tighter transition-all active:scale-95"
+                className="bg-primary hover:bg-primary/90 text-white px-6 h-11 rounded-md font-medium"
               >
                 <Link href="/services">
-                  Explore Our Services
-                  <ArrowUpRight size={18} className="ml-2" />
+                  Our solutions <ChevronRight className="ml-1.5 h-4 w-4" />
                 </Link>
               </Button>
-
               <DiscussProjectCTA
-                label="Get in Touch"
-                colorClassName="font-sans border-white/10 bg-[#6B46C1] text-white hover:bg-[#6B46C1]/90 font-black uppercase italic tracking-tighter"
-                className="rounded-none h-14 px-10"
+                colorClassName="border border-border text-foreground hover:bg-muted font-medium"
+                className="rounded-md h-12 px-8"
               />
-            </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 2. OPERATING PRINCIPLES (Dark Purple Section for Contrast) */}
+      <section className="py-20 md:py-28 bg-[#120A28] relative overflow-hidden text-white">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,black,transparent_75%)]"
+          aria-hidden="true"
+        />
+
+        <div className="container mx-auto px-6 md:px-10 max-w-6xl relative z-10">
+          <div className="max-w-2xl mb-14 text-center md:text-left">
+            <h2 className="font-sans text-xs font-bold tracking-widest uppercase text-[#7B68F0] mb-3">
+              How We Work
+            </h2>
+            <h3 className="font-sans text-3xl md:text-5xl font-bold tracking-tight text-white mb-4">
+              Built with a{" "}
+              <span className="font-accent italic font-normal text-[#FF8C38]">
+                founder's mindset
+              </span>
+            </h3>
+            <p className="text-[#A79FC4] text-base md:text-lg">
+              We treat your product like our own. If a feature or campaign
+              doesn't move the needle, we don't spend time on it.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            {PRINCIPLES.map((item, i) => (
+              <motion.div
+                key={item.title}
+                {...fadeUp}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="bg-[#140f25] border border-white/10 p-8 rounded-2xl hover:border-[#7B68F0]/40 transition-colors"
+              >
+                <div className="w-11 h-11 rounded-xl bg-[#7B68F0]/15 flex items-center justify-center mb-6">
+                  <item.icon className="w-5 h-5 text-[#7B68F0]" />
+                </div>
+                <h4 className="font-sans text-xl font-bold text-white mb-3">
+                  {item.title}
+                </h4>
+                <p className="text-sm text-[#A79FC4] leading-relaxed">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* 3. CLOSING CTA (Light / White Section with Warm Accent Pattern) */}
+      <section className="relative py-16 md:py-24 bg-background border-t border-border overflow-hidden">
+        {/* Subtle orange accent glow behind CTA */}
+        <div
+          className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[450px] h-[300px] bg-[#FF8C38]/[0.04] rounded-full blur-[100px] pointer-events-none"
+          aria-hidden="true"
+        />
+
+        {/* Faint dot pattern */}
+        <div
+          className="absolute inset-0 bg-[radial-gradient(rgba(0,0,0,0.05)_1px,transparent_1px)] dark:bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent_75%)] pointer-events-none"
+          aria-hidden="true"
+        />
+
+        <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
+          <motion.h2
+            {...fadeUp}
+            transition={{ duration: 0.4 }}
+            className="font-sans text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-[1.15] mb-6"
+          >
+            Have something <br />
+            worth{" "}
+            <span className="font-accent italic font-normal text-[#FF8C38]">
+              building?
+            </span>
+          </motion.h2>
+
+          <motion.p
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-muted-foreground text-base md:text-lg mb-8 max-w-lg mx-auto"
+          >
+            Stop wasting time on manual work and underperforming tools. Let's
+            discuss your goals and put together a plan.
+          </motion.p>
+
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="flex flex-wrap items-center justify-center gap-4"
+          >
+            <Button
+              asChild
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-white px-8 h-12 rounded-md font-medium"
+            >
+              <Link href="/services">
+                Our solutions
+                <ArrowUpRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+
+            <DiscussProjectCTA
+              colorClassName="border border-border text-foreground hover:bg-muted font-medium"
+              className="rounded-md h-12 px-8"
+            />
+          </motion.div>
+        </div>
+      </section>
+    </>
   );
 }

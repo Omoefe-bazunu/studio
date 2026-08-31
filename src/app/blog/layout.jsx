@@ -11,7 +11,7 @@ export default function BlogLayout({ children }) {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-[#0F0A1F]">
       <BlogSubNav />
-      <main className="flex-1 py-4">
+      <main className="flex-1 py-24">
         <div className="container mx-auto px-6 max-w-7xl">{children}</div>
       </main>
       <Newsletter />
