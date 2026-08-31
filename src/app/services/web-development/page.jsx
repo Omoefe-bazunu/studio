@@ -300,7 +300,7 @@ const ProjectCard = ({ project, isAdmin, isPriority, onEdit, onDelete }) => {
       <CardFooter className="p-6 md:p-8 pt-0 flex flex-col sm:flex-row gap-3">
         <Button
           asChild
-          className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium text-xs uppercase tracking-wider shadow-md shadow-primary/20 transition-all active:scale-[0.98]"
+          className="flex-1 h-12 rounded-xl w-full bg-primary hover:bg-primary/90 text-white font-medium text-xs uppercase tracking-wider shadow-md shadow-primary/20 transition-all active:scale-[0.98]"
         >
           <Link href={project.liveUrl || "#"} target="_blank">
             Live Site <ExternalLink className="ml-2 h-3.5 w-3.5" />
