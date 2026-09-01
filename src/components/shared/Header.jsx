@@ -76,7 +76,7 @@ const Header = () => {
                   href="/login"
                   className={`${ctaBase} bg-[#7B68F0] text-white hover:bg-[#6C5AE0]`}
                 >
-                  Get started
+                  Sign In
                 </Link>
               </>
             )}
@@ -132,7 +132,7 @@ const Header = () => {
                   className={`${ctaBase} bg-[#7B68F0] text-white justify-center py-3 h-auto`}
                   onClick={() => setIsOpen(false)}
                 >
-                  Get started
+                  Sign In
                 </Link>
               </>
             )}
