@@ -15,9 +15,9 @@ export default function BusinessBlogPage() {
     <section>
       <div className="my-6 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl">
-          Business Strategies & <br />
+          Business Insights & <br />
           <span className="font-accent lowercase font-normal italic text-[#FF8C38]">
-            Growth
+            Growth Strategies
           </span>
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">

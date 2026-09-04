@@ -39,7 +39,7 @@ const PRESET_GRADIENTS = [
   "from-cyan-500 to-blue-500",
 ];
 
-const CATEGORIES = ["Website", "Apps", "Ads", "AI Automation"];
+const CATEGORIES = ["Website", "Apps", "Ads", "AI Automation", "Packages"];
 
 export default function PricingPage() {
   const [showWelcome, setShowWelcome] = useState(true);
