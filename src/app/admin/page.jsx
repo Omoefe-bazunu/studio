@@ -24,6 +24,7 @@ import {
   DollarSign,
   Package,
   QuoteIcon,
+  Calendar1Icon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +34,7 @@ import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import ManageAmazonProducts from "@/components/admin/ManageAmazonProducts";
 import AdminTestimonials from "@/components/admin/AdminTestimonials";
 import ShopAdminPage from "../../components/admin/shopAdmin";
+import BookingsAdmin from "../../components/admin/AdminBooking";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -110,6 +112,7 @@ export default function AdminDashboard() {
     { id: "traffic", label: "Site Traffic", icon: Activity },
     { id: "messages", label: "Messages", icon: Mail },
     { id: "users", label: "Users", icon: Users },
+    { id: "bookings", label: "Bookings", icon: Calendar1Icon },
     { id: "amazon", label: "Amazon", icon: Package },
     { id: "shop", label: "Shop", icon: Package },
     { id: "testimonials", label: "Testimonials", icon: QuoteIcon },
@@ -191,6 +194,7 @@ export default function AdminDashboard() {
 
             <div className="animate-in fade-in duration-300">
               {activeMenu === "traffic" && <AnalyticsDashboard />}
+              {activeMenu === "bookings" && <BookingsAdmin />}
               {activeMenu === "amazon" && <ManageAmazonProducts />}
               {activeMenu === "testimonials" && <AdminTestimonials />}
               {activeMenu === "shop" && <ShopAdminPage />}

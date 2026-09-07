@@ -160,7 +160,7 @@ export default function ContactPage() {
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6">
                   Skip the inbox queue and chat directly with our team on
-                  WhatsApp for quick technical evaluations.
+                  WhatsApp for quick response.
                 </p>
               </div>
 
