@@ -59,7 +59,7 @@ function ContactModal({ open, onClose }) {
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-2xl font-bold text-white mb-2">
+        <h3 className="text-2xl font-bold text-white my-2">
           Let's discuss your project
         </h3>
         <p className="text-sm text-slate-400 mb-6">
