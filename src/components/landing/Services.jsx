@@ -7,7 +7,7 @@ import {
   Code2,
   Smartphone,
   Megaphone,
-  Settings2,
+  Mail,
 } from "lucide-react";
 import DiscussProjectCTA from "@/components/DiscussProjectCTA";
 
@@ -46,11 +46,11 @@ const servicesData = [
     cta: "See results",
   },
   {
-    id: "ai-automation",
-    title: "AI Automation",
+    id: "email-marketing",
+    title: "Email Marketing",
     description:
-      "We automate the repetitive stuff — replies, invoices, follow-ups, etc to save you cost and make you deliver faster and better.",
-    icon: Settings2,
+      "We build campaigns that reach inboxes and turn subscribers into repeat customers.",
+    icon: Mail,
     iconColor: "text-[#FF8C38]",
     iconBg: "bg-[#FF8C38]/10",
     hoverBorder: "hover:border-[#FF8C38]/40",
