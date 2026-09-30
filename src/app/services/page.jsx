@@ -7,7 +7,7 @@ import {
   Code2,
   Smartphone,
   Target,
-  Bot,
+  Mail,
   ArrowUpRight,
   Sparkles,
 } from "lucide-react";
@@ -53,17 +53,28 @@ const services = [
     description:
       "Targeted Meta and Google campaigns set up to reach active buyers, generate qualified leads, and optimize ROI.",
   },
-  {
-    id: "ai-automation",
-    category: "Automation",
-    title: "AI Workflow Automation",
-    icon: Bot,
-    href: "/services/ai-automation",
-    iconColor: "text-[#FF8C38]",
-    iconBg: "bg-[#FF8C38]/15",
-    description:
-      "Intelligent workflows that automate repetitive tasks—replies, invoicing, follow-ups—saving your business time and operating cost.",
-  },
+   {
+ id: "email-marketing",
+  category: "Retention",
+  title: "Email Marketing",
+ icon: Mail,
+  href: "/services/email-marketing",
+ iconColor: "text-[#FF8C38]",
+ iconBg: "bg-[#FF8C38]/15",
+description:
+"Campaigns built to land in inboxes and turn subscribers into repeat customers—welcome flows, newsletters, and re-engagement sequences.",
+ },
+  // {
+  //   id: "ai-automation",
+  //   category: "Automation",
+  //   title: "AI Workflow Automation",
+  //   icon: Bot,
+  //   href: "/services/ai-automation",
+  //   iconColor: "text-[#FF8C38]",
+  //   iconBg: "bg-[#FF8C38]/15",
+  //   description:
+  //     "Intelligent workflows that automate repetitive tasks—replies, invoicing, follow-ups—saving your business time and operating cost.",
+  // },
 ];
 
 export default function ServicesPage() {
