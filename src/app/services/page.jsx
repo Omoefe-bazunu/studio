@@ -58,7 +58,7 @@ const services = [
   category: "Retention",
   title: "Email Marketing",
  icon: Mail,
-  href: "/services/email-marketing",
+  href: "/services/ai-automation",
  iconColor: "text-[#FF8C38]",
  iconBg: "bg-[#FF8C38]/15",
 description:
