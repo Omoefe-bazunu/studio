@@ -64,6 +64,7 @@ const PRESET_CATEGORIES = [
   "Document & Data AI",
   "Sales & CRM Automation",
   "Custom AI Systems",
+  "Retention",
 ];
 
 const getFileName = (url) => {
