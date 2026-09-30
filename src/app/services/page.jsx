@@ -64,17 +64,7 @@ const services = [
 description:
 "Campaigns built to land in inboxes and turn subscribers into repeat customers—welcome flows, newsletters, and re-engagement sequences.",
  },
-  // {
-  //   id: "ai-automation",
-  //   category: "Automation",
-  //   title: "AI Workflow Automation",
-  //   icon: Bot,
-  //   href: "/services/ai-automation",
-  //   iconColor: "text-[#FF8C38]",
-  //   iconBg: "bg-[#FF8C38]/15",
-  //   description:
-  //     "Intelligent workflows that automate repetitive tasks—replies, invoicing, follow-ups—saving your business time and operating cost.",
-  // },
+ 
 ];
 
 export default function ServicesPage() {
