@@ -12,8 +12,8 @@ const services = [
     desc: "Web and mobile apps built and shipped end to end.",
   },
   {
-    name: "AI Automation",
-    desc: "Workflows that remove manual work from your team.",
+    name: "Email Marketing",
+    desc: "Campaigns that reach inboxes and drive repeat business.",
   },
   { name: "Ads", desc: "Campaigns that put your business in front of buyers." },
 ];
@@ -160,18 +160,18 @@ export default function Hero() {
       </div>
 
       <div className="relative container mx-auto px-6 md:px-10 max-w-6xl">
-        <h1 className="font-sans font-medium uppercase text-[2.5rem] leading-[1.15] md:text-6xl md:leading-[1.1] tracking-tight text-white max-w-2xl">
-          Software, AI automation,{" "}
-          <span className="font-accent lowercase italic font-normal">and </span>
-          <span className="font-sans uppercase font-normal text-[#FF8C38]">
-            ads
-          </span>{" "}
-          <span className="font-accent lowercase italic font-normal">to </span>{" "}
-          <br />
-          <span className="font-accent lowercase italic font-normal text-[#FF8C38]">
-            grow your business.
-          </span>
-        </h1>
+       <h1 className="font-sans font-medium uppercase text-[2.5rem] leading-[1.15] md:text-6xl md:leading-[1.1] tracking-tight text-white max-w-2xl">
+  Software, email marketing,{" "}
+  <span className="font-accent lowercase italic font-normal">and </span>
+  <span className="font-sans uppercase font-normal text-[#FF8C38]">
+    ads
+  </span>{" "}
+  <span className="font-accent lowercase italic font-normal">to </span>{" "}
+  <br />
+  <span className="font-accent lowercase italic font-normal text-[#FF8C38]">
+    grow your business.
+  </span>
+</h1>
 
         <p className="mt-6 text-base md:text-lg text-[#A79FC4] max-w-lg leading-relaxed">
           We partner with you to put your business in front of the right
