@@ -105,8 +105,7 @@ export default function ServicesPage() {
             </h1>
 
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto">
-              We build high-converting software, automate manual operations, and
-              drive targeted customer acquisition.
+              We build high-converting software, run email campaigns that convert, and drive targeted customer acquisition.
             </p>
           </motion.div>
         </div>
