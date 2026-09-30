@@ -46,7 +46,7 @@ const servicesData = [
     cta: "See results",
   },
   {
-    id: "email-marketing",
+    id: "ai-automation",
     title: "Email Marketing",
     description:
       "We build campaigns that reach inboxes and turn subscribers into repeat customers.",
