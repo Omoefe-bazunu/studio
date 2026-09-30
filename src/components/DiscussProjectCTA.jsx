@@ -50,7 +50,7 @@ function ContactModal({ open, onClose }) {
         onClick={onClose}
       />
 
-      <div className="relative z-10 w-full max-w-md bg-[#150F26] border border-white/10 rounded-3xl p-8 animate-in zoom-in-95 fade-in duration-200 shadow-2xl">
+      <div className="relative z-10 w-full max-w-md bg-[#150F26] border border-white/10 rounded-3xl py-8 px-4 animate-in zoom-in-95 fade-in duration-200 shadow-2xl">
         <button
           onClick={onClose}
           aria-label="Close"
