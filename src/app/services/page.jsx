@@ -54,7 +54,7 @@ const services = [
       "Targeted Meta and Google campaigns set up to reach active buyers, generate qualified leads, and optimize ROI.",
   },
    {
- id: "email-marketing",
+ id: "ai-automation",
   category: "Retention",
   title: "Email Marketing",
  icon: Mail,
