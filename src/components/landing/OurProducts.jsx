@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Wallet, MailCheck } from "lucide-react";
+import { ArrowUpRight, Wallet, MailCheck, ShieldCheck } from "lucide-react";
 
 const products = [
   {
@@ -26,6 +26,17 @@ const products = [
     icon: MailCheck,
     iconColor: "text-[#FF8C38]",
     iconBg: "bg-[#FF8C38]/10",
+  },
+  {
+    id: "consumer",
+    name: "Consumer",
+    tagline: "Verify before you buy.",
+    description:
+      "Search for authorized retailers near you and confirm a product is genuine before you buy — free for every shopper.",
+    url: "https://consumer.higherenterprises.co.uk",
+    icon: ShieldCheck,
+    iconColor: "text-emerald-600",
+    iconBg: "bg-emerald-600/10",
   },
 ];
 
@@ -55,7 +66,7 @@ export default function OurProducts() {
           </h3>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {products.map((product) => (
             <Link
               key={product.id}
