@@ -59,12 +59,12 @@ const PRESET_CATEGORIES = [
   "Health & Fitness",
   "E-Commerce Apps",
   "Custom Software",
-  "Workflow Automation",
-  "AI Chatbots & Agents",
-  "Document & Data AI",
-  "Sales & CRM Automation",
-  "Custom AI Systems",
-  "Retention",
+   "Campaign Design",
+  "Automated Sequences",
+  "List Growth & Segmentation",
+  "Newsletter Management",
+  "Deliverability & Setup",
+  "Retention"
 ];
 
 const getFileName = (url) => {
