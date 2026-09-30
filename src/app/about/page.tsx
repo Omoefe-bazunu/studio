@@ -66,9 +66,7 @@ export default function AboutUs() {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-8">
-              High-ER Enterprises is a digital solutions startup that builds
-              custom software, automate tedious workflows with AI, and run
-              high-converting ad campaigns to help your business grow and scale.
+              High-ER Enterprises is a digital solutions startup that builds custom software, runs email marketing that converts, and high-converting ad campaigns to help your business grow and scale.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4">
