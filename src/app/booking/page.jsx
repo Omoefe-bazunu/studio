@@ -184,8 +184,8 @@ export default function BookCallPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="website-saas">Website & SaaS</SelectItem>
-                    <SelectItem value="automation">AI automation</SelectItem>
-                    <SelectItem value="paid-ad">Paid ads</SelectItem>
+                    <SelectItem value="automation">Email Marketing</SelectItem>
+                    <SelectItem value="paid-ad">Paid Ads</SelectItem>
                     <SelectItem value="other">Something else</SelectItem>
                   </SelectContent>
                 </Select>
