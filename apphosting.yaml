@@ -1,0 +1,25 @@
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyBonagEXAq-tUZoaXpwI6tps_BzxSlhEWE"
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "high-481fd.firebaseapp.com"
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "high-481fd"
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "high-481fd.firebasestorage.app"
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "323618805749"
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:323618805749:web:936bdc91be1f307e47b2bc"
+    availability: ["BUILD", "RUNTIME"]
+  - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    value: "G-FKZ19JYDFB"
+    availability: ["BUILD", "RUNTIME"]
