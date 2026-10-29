@@ -23,7 +23,6 @@ import {
   Problem,
   Solution,
   Curriculum,
-  Bonuses,
   Testimonials,
   FAQ,
   Checkout,
@@ -239,7 +238,6 @@ export default function JobApplicationCoursePage() {
         <Problem />
         <Solution onCheckoutClick={scrollToCheckout} />
         <Curriculum onCheckoutClick={scrollToCheckout} />
-        <Bonuses />
         <Testimonials
           reviews={reviews}
           isAdmin={isAdmin}

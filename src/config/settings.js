@@ -27,7 +27,7 @@ export const FONTS = {
 };
 
 export const PRICING = {
-  current: 4999,
+  current: 3000,
   original: 12000,
 };
 
