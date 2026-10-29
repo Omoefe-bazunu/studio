@@ -14,7 +14,7 @@ export function Hero({ onCheckoutClick }) {
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:min-h-[640px] lg:grid-cols-2 lg:gap-8">
         {/* TEXT */}
         <div className="text-left lg:py-24">
-          <h1 className="mb-5 text-[2.5rem] font-extrabold sm:text-start text-center leading-[1.08] tracking-tight text-slate-900 sm:text-5xl lg:text-[3.5rem]">
+          <h1 className="mb-5 sm:text-[2.5rem] text-[2.1rem] font-extrabold sm:text-start text-center leading-[1.08] tracking-tight text-slate-900 sm:text-5xl lg:text-[3.5rem]">
             Create tailored CVs
             <br />
             that get you{" "}
