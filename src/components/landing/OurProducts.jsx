@@ -11,7 +11,7 @@ const products = [
     tagline: "Invoicing and finances for small businesses.",
     description:
       "Create branded invoices and quotes, track payments, and run payroll — without spreadsheets.",
-    url: "https://groweasy.higherenterprises.co.uk",
+    url: "https://groweasy.com.ng",
     icon: Wallet,
     iconColor: "text-primary",
     iconBg: "bg-primary/10",
